@@ -87,6 +87,7 @@
 					url: '../index/search'
 				});
 			},
+			//跳转到门店详情
 			toShop(e) {
 				uni.navigateTo({
 					url: '../index/shop'

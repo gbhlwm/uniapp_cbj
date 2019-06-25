@@ -52,7 +52,7 @@
 			</view>
 		</view>
 		<view class="navi-list">
-			<view class="list-item">
+			<view class="list-item" @tap="toService(1)">
 				<view class="item-cover"></view>
 				<view class="item-name">洗车</view>
 				<view class="item-labels">
@@ -82,6 +82,12 @@
 			//轮播图指示器
 			swiperChange(event) {
 				this.currentSwiper = event.detail.current;
+			},
+			//跳转服务详情页面
+			toService(serviceId) {
+				uni.navigateTo({
+					url: '../index/service?serviceId=' + serviceId
+				});
 			}
 		}
 	}
