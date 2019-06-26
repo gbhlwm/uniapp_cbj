@@ -18,7 +18,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="back-navigate"> < </view>
+			<view class="back-navigate" @tap="toBack()"> < </view>
 		</view>
 		<view class="block-info">
 			<view class="price">$199.00-555.00</view>
@@ -52,7 +52,7 @@
 				</view>
 				<view>3.0</view>
 			</view>
-			<view class="more">999条评价    ></view>
+			<view class="more" @tap="toAll(1)">999条评价    ></view>
 		</view>
 		<view class="commands">
 			<view class="command">
@@ -84,7 +84,7 @@
 				<image src="../../static/ic_phone.png"></image>
 				联系门店
 			</view>
-			<view class="action">立即购买</view>
+			<view class="action" @tap="toOrder()">立即购买</view>
 		</view>
 	</view>
 </template>
@@ -104,6 +104,18 @@
 			//返回上一页
 			toBack() {
 				uni.navigateBack();
+			},
+			//跳转全部评价页面
+			toAll(serviceId) {
+				uni.navigateTo({
+					url: '../index/commands?serviceId=' + serviceId
+				});
+			},
+			//跳转结算页面
+			toOrder() {
+				uni.navigateTo({
+					url: '../index/orderSubmit'
+				});
 			}
 		}
 	}
