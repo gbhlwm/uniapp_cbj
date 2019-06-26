@@ -100,6 +100,10 @@
 			//轮播图指示器
 			swiperChange(event) {
 				this.currentSwiper = event.detail.current;
+			},
+			//返回上一页
+			toBack() {
+				uni.navigateBack();
 			}
 		}
 	}
