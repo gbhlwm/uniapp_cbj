@@ -70,13 +70,80 @@
 		data() {
 			return {
 				title: 'Hello',
-				currentSwiper: 0
+				currentSwiper: 0,
+				city: '广州市',
+				cityId: 167,
+				areas: []
 			}
 		},
 		onLoad() {
-
+			const vm = this;
+			uni.getLocation({
+				geocode: true,
+				complete: (res) => {
+					if (res.address && res.address.city) {
+						vm.city = res.address.city;
+						vm.getCityId(vm.city, (res) => {
+							if (res.statusCode === 200 && res.data.status === 2000000) {
+								vm.cityId = res.data.data.id;
+								vm.getAreas();
+							} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+								uni.showModal({
+									title: '获取城市',
+									content: res.data.message,
+								});
+								vm.city = '广州市';
+								vm.cityId = 167;
+								vm.getAreas();
+							} else {
+								vm.city = '广州市';
+								vm.cityId = 167;
+								vm.getAreas();
+							}
+						});
+					} else {
+						vm.city = '广州市';
+						vm.cityId = 167;
+						vm.getAreas();
+					}
+				}
+			})
 		},
 		methods: {
+			//根据城市名获取城市id
+			getCityId(cityName, callback = () => {}) {
+				const vm = this;
+				const url = 'http://192.168.0.106:8012/api/app/shop/findCityByName?name=' + cityName;
+				uni.request({
+					url: url,
+					complete: (res) => {
+						callback(res);
+					}
+				})
+			},
+			//获取城市下城区列表
+			getAreas() {
+				const vm = this;
+				const url = 'http://192.168.0.106:8012/api/app/shop/findAllCityDetail?parentId=' + vm.cityId;
+				uni.request({
+					url: url,
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							vm.areas = res.data.data;
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取城区',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取城区',
+								content: '请求失败',
+							});
+						}
+					}
+				})
+			},
 			//轮播图指示器
 			swiperChange(event) {
 				this.currentSwiper = event.detail.current;
