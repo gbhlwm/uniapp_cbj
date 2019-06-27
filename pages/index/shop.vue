@@ -4,41 +4,40 @@
 			<view class="swiper">
 				<view class="swiper-box">
 					<swiper circular="true" autoplay="true" @change="swiperChange">
-						<swiper-item v-for="(index, i) in 6" :key="i">
-							<div class="swiper-bg"></div>
+						<swiper-item v-for="(item, index) in shopDetail.images" :key="index">
+							<div class="swiper-bg" :style="{'background-image': 'url(' + item + ')'}"></div>
 						</swiper-item>
 					</swiper>
 					<view class="indicator">
 						<view
 							class="dots"
-							v-for="(index, i) in 6"
+							v-for="(item, index) in shopDetail.images"
 							:class="[currentSwiper == index ? 'on' : '']"
-							:key="i"
+							:key="index"
 						></view>
 					</view>
 				</view>
 			</view>
-			<view class="back-navigate"> < </view>
-			<view class="open-time">营业时间: 09:00-18:00</view>
+			<view class="back-navigate" @tap="toBack()"> < </view>
+			<view class="open-time">营业时间: {{shopDetail.operatStartTime.substr(0,5)}}-{{shopDetail.operatEndTime.substr(0,5)}}</view>
 		</view>
 		<view class="block-info">
 			<view class="shop-name">
-				<view class="name">店名</view>
-				<view class="label">综合服务点</view>
+				<view class="name">{{shopDetail.name}}</view>
+				<view class="label">{{shopDetail.classifyName}}</view>
 			</view>
 			<view class="shop-label">
-				<view class="label-item">洗车美容</view>
-				<view class="label-item">洗车美容</view>
-				<view class="label-item">洗车美容</view>
-				<view class="label-item">洗车美容</view>
-				<view class="label-item">洗车美容</view>
+				<view class="label-item" v-if="!shopDetail.serviceClassifyList.length">
+					无服务类型
+				</view>
+				<view class="label-item" v-for="(item, index) in shopDetail.serviceClassifyList" :key="index">{{item}}</view>
 			</view>
 			<view class="shop-eval">
-				总评分 5.0    |    总订单 9999+
+				总评分 {{shopDetail.star}}    |    总订单 9999+
 			</view>
 			<view class="shop-distance">
 				<image src="../../static/common_nav_ic_send.png"></image>
-				1.6km
+				{{shopDetail.distance}}km
 			</view>
 		</view>
 		<view class="block-navi">
@@ -52,15 +51,15 @@
 			</view>
 		</view>
 		<view class="navi-list">
-			<view class="list-item" @tap="toService(1)">
-				<view class="item-cover"></view>
-				<view class="item-name">洗车</view>
+			<view class="list-item" v-for="item in shopDetail.serviceList" :key="item.id" @tap="toService(item.id)">
+				<view class="item-cover" :style="{'background-image': 'url(' + item.images[0] + ')'}"></view>
+				<view class="item-name">{{item.name}}</view>
 				<view class="item-labels">
-					<view class="item">洗车美容</view>
+					<view class="item">{{item.classifyName}}</view>
 				</view>
 				<view class="item-price">
-					<view class="price-up">￥198.00</view>
-					<view class="price-down">￥198.00</view>
+					<view class="price-up">￥{{item.marketPrice}}</view>
+					<view class="price-down">￥{{item.price}}</view>
 				</view>
 			</view>
 		</view>
@@ -74,11 +73,48 @@
 	export default {
 		data() {
 			return {
+				shopDetail: {
+					operatEndTime: '',
+					operatStartTime: '',
+					serviceList: [],
+					serviceClassifyList: []
+				},
 				currentSwiper: 0,
 				currentNavi: 'services',
+				latitude: '23.13559',
+				longitude: '113.335367'
 			}
 		},
+		onLoad(e) {
+			const vm = this;
+			vm.shopId = e.shopId;
+			vm.getPosition();
+		},
 		methods: {
+			//获取定位
+			getPosition() {
+				const vm = this;
+				uni.getLocation({
+					geocode: true,
+					complete: (res) => {
+						if (res.latitude && res.longitude) {
+							vm.latitude = res.latitude;
+							vm.longitude = res.longitude;
+							vm.getShopDetail();
+						} else {
+							uni.showModal({
+								title: '获取定位',
+								content: '失败',
+							});
+							vm.getShopDetail();
+						}
+					}
+				})
+			},
+			//返回
+			toBack() {
+				uni.navigateBack();
+			},
 			//轮播图指示器
 			swiperChange(event) {
 				this.currentSwiper = event.detail.current;
@@ -87,6 +123,40 @@
 			toService(serviceId) {
 				uni.navigateTo({
 					url: '../index/service?serviceId=' + serviceId
+				});
+			},
+			//获取门店详情
+			getShopDetail() {
+				const vm = this;
+				const url = vm.apiBaseUrl + ':8012/api/app/shop/findShopDetail';
+				uni.request({
+					method: 'GET',
+					url: url,
+					data: {
+						id: vm.shopId,
+						lat: vm.latitude,
+						lon: vm.longitude
+					},
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							const detail = res.data.data;
+							detail.images = detail.image.split(',');
+							for (let i = 0; i < detail.serviceList.length; i++) {
+								detail.serviceList[i].images = detail.serviceList[i].image.split(',');
+							}
+							vm.shopDetail = detail;
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取门店详情',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取门店详情',
+								content: '请求失败',
+							});
+						}
+					}
 				});
 			}
 		}
