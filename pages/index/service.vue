@@ -4,16 +4,16 @@
 			<view class="swiper">
 				<view class="swiper-box">
 					<swiper circular="true" autoplay="true" @change="swiperChange">
-						<swiper-item v-for="(index, i) in 6" :key="i">
-							<div class="swiper-bg"></div>
+						<swiper-item v-for="(item, index) in serviceDetail.images" :key="index">
+							<div class="swiper-bg" :style="{'background-image': 'url(' + item + ')'}"></div>
 						</swiper-item>
 					</swiper>
 					<view class="indicator">
 						<view
 							class="dots"
-							v-for="(index, i) in 6"
+							v-for="(item, index) in serviceDetail.images"
 							:class="[currentSwiper == index ? 'on' : '']"
-							:key="i"
+							:key="index"
 						></view>
 					</view>
 				</view>
@@ -22,26 +22,26 @@
 		</view>
 		<view class="block-info">
 			<view class="price">$199.00-555.00</view>
-			<view class="name">服务名称</view>
-			<view class="desc">服务简介</view>
-			<view class="sell-num">已售：1700件</view>
+			<view class="name">{{serviceDetail.name}}</view>
+			<view class="desc">{{serviceDetail.instruction}}</view>
+			<view class="sell-num">已售：{{serviceDetail.orderNumber || '0'}}件</view>
 		</view>
-		<view class="block-option">
+		<view class="block-option" @tap="popupShow = true">
 			选择
 			<view class="case">服务套餐</view>
 			<image src="../../static/common_nav_ic_more.png"></image>
 		</view>
 		<view class="block-shop">
-			<view class="shop-name">门店名称</view>
-			<view class="shop-address">广州市天河区棠安路口188号</view>
+			<view class="shop-name">{{serviceDetail.shopName}}</view>
+			<view class="shop-address">{{serviceDetail.address}}</view>
 			<view class="distance">
-				1.3km
+				{{serviceDetail.distance}}km
 				<image src="../../static/common_nav_ic_send.png"></image>
 			</view>
 		</view>
 		<view class="block-detail">
 			<view class="title">商品详情</view>
-			<rich-text class="content" nodes=""></rich-text>
+			<rich-text class="content" :nodes="serviceDetail.details"></rich-text>
 		</view>
 		<view class="service-eval">
 			<view class="point">
@@ -80,23 +80,130 @@
 			</view>
 		</view>
 		<view class="footer">
-			<view class="contact">
+			<view class="contact" @tap="toMakePhone()">
 				<image src="../../static/ic_phone.png"></image>
 				联系门店
 			</view>
-			<view class="action" @tap="toOrder()">立即购买</view>
+			<view class="action" @tap="popupShow = true">立即购买</view>
 		</view>
+		<uni-popup :show="popupShow" h5-top="true" position="bottom" mode="fixed">
+			<view class="service-select">
+				<image @tap="popupShow = false" class="btn-close" src="../../static/icon_search.png"></image>
+				<view class="info">
+					<view class="service-cover"></view>
+					<view class="price" v-if="meal.id"><view>￥{{meal.sellPrice}}</view><view class="market">￥{{meal.markPrice}}</view></view>
+					<view class="price" v-if="!meal.id && meal.maxPrice">￥{{meal.minPrice}} ~ ￥{{meal.maxPrice}}</view>
+					<view class="price" v-if="!meal.id && !meal.maxPrice">￥{{meal.minPrice}}</view>
+					<view class="service-name">{{meal.name}}</view>
+				</view>
+				<view class="service-title">套餐</view>
+				<view class="service-list">
+					<view class="item" :class="{active: item.id === mealId}" v-for="item in mealList" :key="item.id" @tap="chooseMeal(item)">
+						{{item.name}}
+					</view>
+				</view>
+				<view class="buy-number">
+					<view class="title">购买数量</view>
+					<view class="action">
+						<image v-if="buyNumber === 1" src="../../static/shopcart_icon_reduce.png"></image>
+						<image @tap="minusNum()" v-if="buyNumber > 1" src="../../static/shopcart_icon_reduce_s.png"></image>
+						<view class="number">{{buyNumber}}</view>
+						<image @tap="addNum()" src="../../static/shopcart_icon_add.png"></image>
+					</view>
+				</view>
+				<view class="btn-buy" @tap="toOrderSubmit()">立即购买</view>
+			</view>
+		</uni-popup>
 	</view>
 </template>
 
 <script>
+	import uniPopup from "@/components/uni-popup/uni-popup.vue"
 	export default {
+		components: {uniPopup},
 		data() {
 			return {
-				currentSwiper: 0
+				currentSwiper: 0,
+				serviceId: '',
+				serviceDetail: {},
+				latitude: '23.13559',
+				longitude: '113.335367',
+				popupShow: false,
+				meal: {
+					id: '',
+					name: '请选择套餐',
+					sellPrice: 100,
+					markPrice: 200,
+					maxPrice: '',
+					minPrice: 100
+				},
+				buyNumber: 1,
+				mealList: []
 			}
 		},
+		onLoad(e) {
+			const vm = this;
+			vm.serviceId = e.serviceId;
+			vm.getPosition();
+		},
 		methods: {
+			//跳转购买清单
+			toOrderSubmit() {
+				const vm = this;
+				if (!vm.meal.id) {
+					uni.showModal({
+						content: '请选择套餐',
+					})
+				} else {
+					const url = '../index/orderSubmit?mealId=' + vm.meal.id + '&number=' + vm.buyNumber;
+					uni.navigateTo({
+						url: url
+					});
+				}
+			},
+			//减少购买数量
+			minusNum() {
+				const vm = this;
+				vm.buyNumber -= 1;
+			},
+			//增加购买数量
+			addNum() {
+				const vm = this;
+				vm.buyNumber += 1;
+			},
+			//选择套餐
+			chooseMeal(meal) {
+				const vm = this;
+				vm.mealId = meal.id;
+				vm.meal = meal;
+			},
+			//拨打电话
+			toMakePhone() {
+				const vm = this;
+				uni.makePhoneCall({
+					phoneNumber: vm.serviceDetail.telephone
+				});
+			},
+			//获取定位
+			getPosition() {
+				const vm = this;
+				uni.getLocation({
+					geocode: true,
+					complete: (res) => {
+						if (res.latitude && res.longitude) {
+							vm.latitude = res.latitude;
+							vm.longitude = res.longitude;
+							vm.getServiceDetail();
+						} else {
+							uni.showModal({
+								title: '获取定位',
+								content: '失败',
+							});
+							vm.getServiceDetail();
+						}
+					}
+				})
+			},
 			//轮播图指示器
 			swiperChange(event) {
 				this.currentSwiper = event.detail.current;
@@ -115,6 +222,40 @@
 			toOrder() {
 				uni.navigateTo({
 					url: '../index/orderSubmit'
+				});
+			},
+			//获取服务详情
+			getServiceDetail() {
+				const vm = this;
+				const url = vm.apiBaseUrl + ':8012/api/app/services/findServicesById';
+				uni.request({
+					method: 'GET',
+					url: url,
+					data: {
+						id: vm.serviceId,
+						lat: vm.latitude,
+						lon: vm.longitude
+					},
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							const detail = res.data.data;
+							detail.images = detail.image.split(',');
+							vm.serviceDetail = detail;
+							vm.mealList = detail.meals;
+							vm.meal.maxPrice = detail.maxPrice;
+							vm.meal.minPrice = detail.minPrice;
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取门店详情',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取门店详情',
+								content: '请求失败',
+							});
+						}
+					}
 				});
 			}
 		}
@@ -282,6 +423,69 @@
 			.service-choose {
 				font-size: 26upx; font-weight: 500; color: rgba(66,66,66,1); line-height: 40upx; margin-top: 30upx;
 			}
+		}
+	}
+	.service-select {
+		padding: 30upx; text-align: left;
+		.btn-close {
+			width: 38upx; height: 38upx; float: right;
+		}
+		.info {
+			margin-top: 50upx; position: relative; padding-left: 190upx;
+			overflow-y: auto;
+			.service-cover {
+				position: absolute; top: 0; bottom: 0; margin: auto;
+				left: 0; height: 160upx; width: 160upx;
+				background: 50% 50% #1B82D2 no-repeat; background-size: cover;
+			}
+			.price {
+				line-height: 35upx; display: flex;
+				font-size: 40upx; color:rgba(230,54,31,1); margin-top: 20upx;
+				.market {
+					text-decoration: line-through; font-size: 30upx; color: #999999; margin-left: 10upx;
+				}
+			}
+			.service-name {
+				font-size: 30upx; margin-top: 30upx; color: rgba(66,66,66,1);
+			}
+		}
+		.service-title {
+			line-height: 44upx; font-size: 30upx;
+			font-size: 50upx; margin-top: 30upx; color: rgba(66,66,66,1);
+		}
+		.service-list {
+			margin-top: 20upx;
+			display: flex; flex-wrap: wrap; height: 220upx; overflow-y: scroll;
+			.item {
+				margin-right: 20upx;
+				height: 58upx; line-height: 58upx; padding: 0 10upx;
+				border-radius: 29upx; background: #EDEDED;
+				text-align: center; color: #666666; font-size: 28upx;
+				&.active {
+					background: #1B82D2; color: white;
+				}
+			}
+		}
+		.buy-number {
+			display: flex; justify-content: space-between; align-items: center;
+			.title {
+				 font-size: 30upx;
+			}
+			.action {
+				display: flex; align-items: center;
+				image {
+					width: 44upx; height: 44upx;
+				}
+				.number {
+					text-align: center; width: 76upx; height: 44upx;
+					line-height: 44upx; background: #F0F0F0; font-size: 26upx;
+				}
+			}
+		}
+		.btn-buy {
+			margin-top: 20upx;
+			line-height: 86upx; color: white; font-size: 30upx; text-align: center;
+			width: 688upx; height: 86upx; background: rgba(27,130,210,1); border-radius: 43upx;
 		}
 	}
 	.footer {

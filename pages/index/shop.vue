@@ -33,7 +33,7 @@
 				<view class="label-item" v-for="(item, index) in shopDetail.serviceClassifyList" :key="index">{{item}}</view>
 			</view>
 			<view class="shop-eval">
-				总评分 {{shopDetail.star}}    |    总订单 9999+
+				总评分 {{shopDetail.star}}    |    总订单 {{shopDetail.orderNumber}}+
 			</view>
 			<view class="shop-distance">
 				<image src="../../static/common_nav_ic_send.png"></image>
@@ -41,16 +41,16 @@
 			</view>
 		</view>
 		<view class="block-navi">
-			<view class="navi-item" 
+			<view class="navi-item" @tap="chooseAction('services')"
 			:class="[currentNavi == 'services' ? 'active' : '']">
 				服务列表
 			</view>
-			<view class="navi-item" 
+			<view class="navi-item"  @tap="chooseAction('details')"
 			:class="[currentNavi == 'details' ? 'active' : '']">
 				门店详情
 			</view>
 		</view>
-		<view class="navi-list">
+		<view class="navi-list" v-if="currentNavi == 'services'">
 			<view class="list-item" v-for="item in shopDetail.serviceList" :key="item.id" @tap="toService(item.id)">
 				<view class="item-cover" :style="{'background-image': 'url(' + item.images[0] + ')'}"></view>
 				<view class="item-name">{{item.name}}</view>
@@ -58,14 +58,12 @@
 					<view class="item">{{item.classifyName}}</view>
 				</view>
 				<view class="item-price">
-					<view class="price-up">￥{{item.marketPrice}}</view>
-					<view class="price-down">￥{{item.price}}</view>
+					<view class="price-up">￥{{item.price}}</view>
+					<view class="price-down">￥{{item.marketPrice}}</view>
 				</view>
 			</view>
 		</view>
-		<view class="shop-detail">
-			
-		</view>
+		<rich-text class="shop-detail" :nodes="shopDetail.details" v-if="currentNavi == 'details'"></rich-text>
 	</view>
 </template>
 
@@ -110,6 +108,11 @@
 						}
 					}
 				})
+			},
+			//
+			chooseAction(action) {
+				const vm = this;
+				vm.currentNavi = action;
 			},
 			//返回
 			toBack() {

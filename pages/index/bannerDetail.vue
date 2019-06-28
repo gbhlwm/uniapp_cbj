@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="back-navigate" @tap="toBack()"> < </view>
-		<rich-text class="banner-content" v-if="bannerType === 2" nodes="detail"></rich-text>
+		<rich-text class="banner-content" v-if="bannerType === 2" :nodes="detail"></rich-text>
 		<web-view v-else-if="bannerType === 1" class="outer-link" :src="detail"></web-view>
 	</view>
 </template>
@@ -63,7 +63,5 @@
 		z-index: 98;
 		// position: fixed; top: 0; bottom: 0; left: 0; right: 0; overflow: scroll;
 	}
-	.banner-content {
-		padding: 55upx 30upx;
-	}
+	.banner-content {}
 </style>
