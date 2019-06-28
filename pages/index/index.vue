@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="head">
-			<view class="area">
+			<view class="area" @tap="cityShow = true;">
 				<view class="city">{{city}}</view>
 				<image class="city-img" src="../../static/ic_down_s.png"></image>
 			</view>
@@ -129,15 +129,21 @@
 				</view>
 			</view>
 		</view>
+		<uni-indexed-list v-if="cityShow" :options="cityList" :showSelect="cityShow" @click="cityClick"></uni-indexed-list>
 	</view>
 </template>
 
 <script>
+	import uniIndexedList from "@/components/uni-indexed-list/uni-indexed-list.vue"
 	export default {
+		components: {uniIndexedList},
 		data() {
 			return {
 				title: 'Hello',
 				currentSwiper: 0,
+				cityShow: false,
+				citys: [],
+				cityList: [],
 				city: '广州市',
 				cityId: 167,
 				areas: [
@@ -192,6 +198,7 @@
 		},
 		onLoad() {
 			const vm = this;
+			vm.getAllCity();
 			vm.getBanners();
 			vm.getServiceList();
 			vm.getClassList();
@@ -211,6 +218,83 @@
 			vm.getPosition();
 		},
 		methods: {
+			//选择城市
+			cityClick(option) {
+				const vm = this;
+				console.log(option);
+				const city = option.item.name;
+				let cityId = 0;
+				for (let i = 0; i < vm.citys.length; i++) {
+					if (city === vm.citys[i].name) {
+						cityId = vm.citys[i].id
+					}
+				}
+				vm.city = city;
+				vm.cityId = cityId;
+				vm.getAreas(vm.getShops);
+				this.cityShow = false;
+			},
+			// 获取所有城市
+			getAllCity() {
+				const vm = this;
+				const url = vm.apiBaseUrl + ':8012/api/app/shop/findAllCity';
+				uni.request({
+					method: 'GET',
+					url: url,
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							const list = res.data.data;
+							const arr = [
+								{letter: 'A', data: []},
+								{letter: 'B', data: []},
+								{letter: 'C', data: []},
+								{letter: 'D', data: []},
+								{letter: 'E', data: []},
+								{letter: 'F', data: []},
+								{letter: 'G', data: []},
+								{letter: 'H', data: []},
+								{letter: 'I', data: []},
+								{letter: 'J', data: []},
+								{letter: 'K', data: []},
+								{letter: 'L', data: []},
+								{letter: 'M', data: []},
+								{letter: 'N', data: []},
+								{letter: 'O', data: []},
+								{letter: 'P', data: []},
+								{letter: 'Q', data: []},
+								{letter: 'R', data: []},
+								{letter: 'S', data: []},
+								{letter: 'T', data: []},
+								{letter: 'U', data: []},
+								{letter: 'V', data: []},
+								{letter: 'W', data: []},
+								{letter: 'X', data: []},
+								{letter: 'Y', data: []},
+								{letter: 'Z', data: []}
+							];
+							for (let i = 0; i < list.length; i++) {
+								for (let j = 0; j < arr.length; j++) {
+									if (list[i].initials === arr[j].letter) {
+										arr[j].data.push(list[i].name);
+									}
+								}
+							}
+							vm.cityList = arr;
+							vm.citys = list;
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取城市列表',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取城市列表',
+								content: '请求失败',
+							});
+						}
+					}
+				});
+			},
 			//获取定位
 			getPosition() {
 				const vm = this;
@@ -516,6 +600,9 @@
 </script>
 
 <style lang="less" scoped>
+	.uni-indexed {
+		position: fixed; top: 0; bottom: 0; left: 0; right: 0; overflow: scroll; background: white;
+	}
 	.head {
 		display: flex; padding: 19upx;
 		.area {
