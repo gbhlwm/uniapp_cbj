@@ -121,10 +121,7 @@
         }, {
             "path" : "pages/seller/login",//商家端登录页，对应原型模块B1
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "商家登录"
             }
         }, {
             "path" : "pages/seller/apply",//商家端申请入驻页，对应原型模块B1-1
