@@ -55,11 +55,25 @@
 		margin: 150upx auto 100upx auto;
 	}
 	.input-option {
-		.option-title {}
-		.option-value {}
+		height: 98upx; display: flex; align-items: center; width: 610upx;
+		margin: auto; border-bottom: 1px solid #DEDEDE;
+		.option-title {
+			width: 100upx; font-size: 28upx; color: #131319;
+		}
+		.option-value {
+			color: #C6C6C6; size: 28upx;
+		}
 	}
 	.actions {
-		.action {}
+		display: flex; justify-content: space-between; margin-top: 30upx;
+		width: 610upx; margin: 30upx auto;
+		.action {
+			color: #3DA8FF; font-size: 28upx;
+		}
 	}
-	.btn-login {}
+	.btn-login {
+		width: 610upx; height: 90upx; line-height: 90upx; font-size: 38upx;
+		color: white; text-align: center; margin: 177upx auto 0 auto;
+		background: #1B82D2;
+	}
 </style>
