@@ -53,7 +53,7 @@
 			//跳转忘记密码
 			toForget() {
 				uni.navigateTo({
-					url: '../seller/applyPassword'
+					url: '../seller/applyForgetPassword'
 				});
 			}
 		}

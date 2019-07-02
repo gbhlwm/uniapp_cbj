@@ -10,22 +10,6 @@
 			<input v-model="code" class="option-value" placeholder="请输入验证码">
 			<view class="option-btn"></view>
 		</view>
-		<view class="block-option">
-			<view class="option-title">设置密码</view>
-			<input class="option-value" :type="passwordType" v-model="password" placeholder="请输入密码">
-			<view class="option-btn">
-				<image @tap="changePasswordType('text')" v-if="!passwordShow" src="../../static/login_icon_mima_n.png"></image>
-				<image @tap="changePasswordType('password')" v-if="passwordShow" src="../../static/login_icon_mima_s.png"></image>
-			</view>
-		</view>
-		<view class="block-option">
-			<view class="option-title">确认密码</view>
-			<input v-model="confirmPassword" :type="confirmPasswordType" class="option-value" placeholder="请再次输入密码">
-			<view class="option-btn">
-				<image v-if="!confirmPasswordShow" src="../../static/login_icon_mima_n.png"></image>
-				<image v-if="confirmPasswordShow" src="../../static/login_icon_mima_s.png"></image>
-			</view>
-		</view>
 	</view>
 </template>
 
@@ -117,22 +101,18 @@
 
 <style lang="less">
 	.block-option {
-		margin: 0 20upx;
 		display: flex; align-items: center; height: 100upx;
 		.option-title {
 			width: 150upx;
-			font-size: 30upx; color: #131319; flex-grow: 1; text-align: left;
+			font-size: 30upx; color: #131319; flex-grow: 1; text-align: center;
 		}
 		.option-value {
 			font-size: 28upx; color: #131319; ::placeholder {color: #C6C6C6;}
 			flex-grow: 3;
 		}
 		.option-btn {
-			color: #1B82D2; display: flex; justify-content: center; width: 150upx;
-			font-size: 28upx; flex-grow: 1; text-align: center; align-items: center;
-			image {
-				width: 54upx; height: 32upx;
-			}
+			width: 150upx; color: #1B82D2;
+			font-size: 28upx; flex-grow: 3; text-align: center;
 		}
 	}
 </style>

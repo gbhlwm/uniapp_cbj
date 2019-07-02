@@ -126,23 +126,30 @@
         }, {
             "path" : "pages/seller/apply",//商家端申请入驻页，对应原型模块B1-1
             "style": {
-            	"navigationBarTitleText": "商家入驻"
+            	"navigationBarTitleText": "入驻申请"
             }
-        }, {
-            "path" : "pages/seller/applyPassword",//商家端申请入驻设置密码页，对应原型模块B1-2
-            "style": {
-            	"app-plus": {
-            		"titleNView": {
+		}, {
+			"path" : "pages/seller/applyForgetPassword",//商家端忘记密码页，对应原型模块B1-4
+			"style": {
+				"app-plus": {
+					"titleNView": {
 						"backgroundColor": "#ffffff",
 						"titleText": "忘记密码",
 						"buttons": [
 							{
-								"badgeText": "下一步",
-								"float": "right"
+								"text": "下一步",
+								"float": "right",
+								"fontSize": "10",
+								"color": "#1B82D2"
 							}
 						]
 					}
-            	}
+				}
+			}
+        }, {
+            "path" : "pages/seller/applyPassword",//商家端申请入驻设置密码页，对应原型模块B1-2
+            "style": {
+            	"navigationBarTitleText": "入驻申请"
             }
         }, {
             "path" : "pages/seller/agreement",//商家端申请入驻协议页，对应原型模块B1-3
@@ -155,7 +162,20 @@
         }, {
             "path" : "pages/seller/forgetPassword",//商家端登录忘记密码页，对应原型模块B1-4
             "style": {
-            	"navigationBarTitleText": "新密码"
+            	"app-plus": {
+            		"titleNView": {
+            			"backgroundColor": "#ffffff",
+            			"titleText": "新密码",
+            			"buttons": [
+            				{
+            					"text": "完成",
+            					"float": "right",
+            					"fontSize": "10",
+            					"color": "#1B82D2"
+            				}
+            			]
+            		}
+            	}
             }
         }, {
             "path" : "pages/seller/sellerCenter",//商家端个人中心页，对应原型模块B2
