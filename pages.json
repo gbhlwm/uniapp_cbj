@@ -126,17 +126,22 @@
         }, {
             "path" : "pages/seller/apply",//商家端申请入驻页，对应原型模块B1-1
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "商家入驻"
             }
         }, {
             "path" : "pages/seller/applyPassword",//商家端申请入驻设置密码页，对应原型模块B1-2
             "style": {
             	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
+            		"titleNView": {
+						"backgroundColor": "#ffffff",
+						"titleText": "忘记密码",
+						"buttons": [
+							{
+								"badgeText": "下一步",
+								"float": "right"
+							}
+						]
+					}
             	}
             }
         }, {
@@ -150,10 +155,7 @@
         }, {
             "path" : "pages/seller/forgetPassword",//商家端登录忘记密码页，对应原型模块B1-4
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "新密码"
             }
         }, {
             "path" : "pages/seller/sellerCenter",//商家端个人中心页，对应原型模块B2

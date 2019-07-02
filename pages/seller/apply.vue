@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page-apply">
 		
 	</view>
 </template>
@@ -17,6 +17,8 @@
 	}
 </script>
 
-<style>
-
+<style lang="less">
+	.page-apply {
+		background: #F5F5F5;
+	}
 </style>

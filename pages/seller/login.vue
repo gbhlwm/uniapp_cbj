@@ -11,10 +11,10 @@
 			<input type="text" class="option-value"/>
 		</view>
 		<view class="actions">
-			<view class="action">
+			<view class="action" @tap="toForget()">
 				忘记密码
 			</view>
-			<view class="action">
+			<view class="action" @tap="toApply()">
 				我要入驻
 			</view>
 		</view>
@@ -38,13 +38,24 @@
 					if (res.data) {
 						uni.reLaunch({
 							url: '../seller/sellerCenter'
-						})
+						});
 					}
 				}
 			});
 		},
 		methods: {
-			
+			//跳转商家入驻
+			toApply() {
+				uni.navigateTo({
+					url: '../seller/apply'
+				});
+			},
+			//跳转忘记密码
+			toForget() {
+				uni.navigateTo({
+					url: '../seller/applyPassword'
+				});
+			}
 		}
 	}
 </script>
