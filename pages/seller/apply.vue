@@ -77,7 +77,12 @@
 		<view class="block-title">
 			营业执照
 		</view>
-		<view class="image-upload">
+		<view @tap="toImageUpload()" class="image-upload" v-if="shopInfo.businessLicenseImage">
+			<view class="upload-item" :style="{'background-image': 'url(' + shopInfo.businessLicenseImage + ')'}">
+				<view class="upload-item-title">上传营业执照照片</view>
+			</view>
+		</view>
+		<view @tap="toImageUpload()" class="image-upload" v-if="!shopInfo.businessLicenseImage">
 			<view class="upload-item">
 				<view class="upload-item-title">上传营业执照照片</view>
 			</view>
@@ -118,11 +123,99 @@
 			}
 		},
 		methods: {
+			//将chooseimage的图片转base64
+			urlTobase64(url){
+				uni.request({
+					url: url,
+					method:'GET',
+					responseType: 'arraybuffer',
+					success: (res) => {
+						// console.log(uni.arrayBufferToBase64(res.data));
+						let base64 = uni.arrayBufferToBase64(res.data); //把arraybuffer转成base64 
+						base64 = 'data:' + res.header['content-type'] + ';base64,' + base64 //不加上这串字符，在页面无法显示的哦
+						console.log(base64)
+					}
+				})
+			},
+			//图片上传
+			toImageUpload() {
+				const vm = this;
+				uni.chooseImage({
+					count: 1,
+					complete(res) {
+						uni.request({
+							url: res.tempFilePaths[0],
+							method:'GET',
+							responseType: 'arraybuffer',
+							success: (res) => {
+								// console.log(uni.arrayBufferToBase64(res.data));
+								let base64 = uni.arrayBufferToBase64(res.data); //把arraybuffer转成base64 
+								base64 = 'data:' + res.header['content-type'] + ';base64,' + base64 //不加上这串字符，在页面无法显示的哦
+								uni.request({
+									url: 'http://chebianjie.net:8080/uaa/api/ut-files/uploadShoppingPic',
+									method: 'POST',
+									data: {
+										MultipartFile: [base64]
+									},
+									complete(res) {
+										console.log(res);
+									}
+								})
+							}
+						})
+					}
+				})
+			},
 			// 设置门店登录密码
 			toApplyPassword() {
 				uni.navigateTo({
 					url: '../seller/applyPassword'
 				});
+			},
+			//下一步
+			toNext() {
+				const vm = this;
+				if (!vm.shopInfo.name) {
+					uni.showModal({
+						content: '请输入门店名称'
+					});
+				} else if (!vm.shopInfo.shopClassify) {
+					uni.showModal({
+						content: '请选择门店服务认证'
+					});
+				} else if (!vm.shopInfo.address) {
+					uni.showModal({
+						content: '请选择门店位置'
+					});
+				} else if (!vm.shopInfo.operatStartTime) {
+					uni.showModal({
+						content: '请选择门店开始营业时间'
+					});
+				} else if (!vm.shopInfo.operatEndTime) {
+					uni.showModal({
+						content: '请选择门店结束营业时间'
+					});
+				} else if (!vm.shopInfo.mobile) {
+					uni.showModal({
+						content: '请输入门店电话'
+					});
+				} else if (!vm.shopInfo.contacts) {
+					uni.showModal({
+						content: '请输入联系人'
+					});
+				} else if (!vm.shopInfo.telephone) {
+					uni.showModal({
+						content: '请输入联系人手机号'
+					});
+				} else if (!vm.shopInfo.identityCardImage) {
+					uni.showModal({
+						content: '请上传身份证正反面'
+					});
+				} else if (!vm.shopInfo.businessLicenseImage) {
+					uni.showModal({
+						content: '请上传营业执照照片'
+					});
+				} else {}
 			}
 		}
 	}

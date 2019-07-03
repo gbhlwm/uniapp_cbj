@@ -22,8 +22,8 @@
 			<view class="option-title">确认密码</view>
 			<input v-model="confirmPassword" :type="confirmPasswordType" class="option-value" placeholder="请再次输入密码">
 			<view class="option-btn">
-				<image v-if="!confirmPasswordShow" src="../../static/login_icon_mima_n.png"></image>
-				<image v-if="confirmPasswordShow" src="../../static/login_icon_mima_s.png"></image>
+				<image @tap="changeConfirmPasswordType('text')" v-if="!confirmPasswordShow" src="../../static/login_icon_mima_n.png"></image>
+				<image @tap="changeConfirmPasswordType('password')" v-if="confirmPasswordShow" src="../../static/login_icon_mima_s.png"></image>
 			</view>
 		</view>
 	</view>
@@ -35,7 +35,13 @@
 			return {
 				phone: '',
 				code: '',
-				codeTitle: '发送验证码'
+				codeTitle: '发送验证码',
+				passwordType: 'password',
+				confirmPasswordType: 'password',
+				passwordShow: false,
+				confirmPasswordShow: false,
+				password: '',
+				confirmPassword: ''
 			}
 		},
 		onNavigationBarButtonTap() {
@@ -58,6 +64,18 @@
 			
 		},
 		methods: {
+			// 改变
+			changePasswordType(type) {
+				const vm = this;
+				vm.passwordShow = !vm.passwordShow;
+				vm.passwordType = type;
+			},
+			// 改变
+			changeConfirmPasswordType(type) {
+				const vm = this;
+				vm.confirmPasswordShow = !vm.confirmPasswordShow;
+				vm.confirmPasswordType = type;
+			},
 			// 发送验证码
 			sendCode() {
 				const vm = this;
@@ -125,7 +143,8 @@
 		}
 		.option-value {
 			font-size: 28upx; color: #131319; ::placeholder {color: #C6C6C6;}
-			flex-grow: 3;
+			flex-grow: 3; height: 90upx; padding: 0; border: none;
+			outline: none;
 		}
 		.option-btn {
 			color: #1B82D2; display: flex; justify-content: center; width: 150upx;

@@ -213,24 +213,41 @@
             "path" : "pages/seller/orders",//商家端门店订单页，对应原型模块B4
             "style": {
             	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
+            		"titleNView": {
+            			"backgroundColor": "#ffffff",
+            			"titleText": "订单列表",
+            			"buttons": [
+            				{
+            					"text": "售后",
+            					"float": "right",
+            					"fontSize": "10",
+            					"color": "#333333"
+            				}
+            			]
+            		}
             	}
             }
         }, {
             "path" : "pages/seller/orderDetail",//商家端门店订单详情页，对应原型模块B4-1
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "订单详情"
             }
         }, {
             "path" : "pages/seller/orderAfter",//商家端门店售后订单页，对应原型模块B4-2
             "style": {
             	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
+            		"titleNView": {
+            			"backgroundColor": "#ffffff",
+            			"titleText": "售后订单",
+            			"buttons": [
+            				{
+            					"text": "订单",
+            					"float": "right",
+            					"fontSize": "10",
+            					"color": "#333333"
+            				}
+            			]
+            		}
             	}
             }
         }, {
