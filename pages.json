@@ -261,17 +261,25 @@
         }, {
             "path" : "pages/seller/orderAfterHistory",//商家端门店售后订单协商历史页，对应原型模块B4-3-2
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "协商历史"
             }
         }, {
             "path" : "pages/seller/orderWater",//商家端门店订单流水页，对应原型模块B5
             "style": {
             	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
+            		"titleNView": {
+            			"backgroundColor": "#ffffff",
+            			"titleText": "订单流水",
+            			"buttons": [
+            				{
+            					"text": "月份",
+            					"float": "right",
+            					"fontSize": "10",
+            					"color": "#333333",
+								"select": true
+            				}
+            			]
+            		}
             	}
             }
         }, {
