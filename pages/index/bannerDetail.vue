@@ -1,6 +1,8 @@
 <template>
 	<view>
-		<view class="back-navigate" @tap="toBack()"> < </view>
+		<view class="back-navigate" @tap="toBack()">
+			<image src="../../static/common_nav_ic_back_black.png" mode=""></image>
+		</view>
 		<rich-text class="banner-content" v-if="bannerType === 2" :nodes="detail"></rich-text>
 		<web-view v-else-if="bannerType === 1" class="outer-link" :src="detail"></web-view>
 	</view>
@@ -58,6 +60,10 @@
 		line-height: 55upx; color: white; font-size: 36upx; text-align: center;
 		border-radius: 100%; top: 20upx; left: 20upx; z-index: 99;
 		box-shadow: 0 0 1px rgba(255,255,255,0.5);
+		image {
+			display: inline-block; width: 13upx; height: 20upx;
+			transform: rotate(180deg);
+		}
 	}
 	.outer-link {
 		z-index: 98;

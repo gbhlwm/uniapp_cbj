@@ -18,7 +18,9 @@
 					</view>
 				</view>
 			</view>
-			<view class="back-navigate" @tap="toBack()"> < </view>
+			<view class="back-navigate" @tap="toBack()">
+				<image src="../../static/common_nav_ic_back_black.png" mode=""></image>
+			</view>
 			<view class="open-time">营业时间: {{shopDetail.operatStartTime.substr(0,5)}}-{{shopDetail.operatEndTime.substr(0,5)}}</view>
 		</view>
 		<view class="block-info">
@@ -196,6 +198,10 @@
 			position: absolute; width: 55upx; height: 55upx; background: rgba(0,0,0,0.5);
 			line-height: 55upx; color: white; font-size: 36upx; text-align: center;
 			border-radius: 100%; top: 20upx; left: 20upx;
+			image {
+				display: inline-block; width: 13upx; height: 20upx;
+				transform: rotate(180deg);
+			}
 		}
 		.open-time {
 			position: absolute; bottom: 60upx; left: 0;

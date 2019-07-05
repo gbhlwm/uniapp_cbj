@@ -20,35 +20,35 @@
 				<image src="../../static/common_nav_ic_back_black.png"></image>
 			</view>
 		</view>
-		<view class="block-action">
+		<view class="block-action" @tap="toOrder()">
 			<image class="action-img" src="../../static/icon-order.png"></image>
 			<view class="action-title">门店订单</view>
 			<view class="action-turn action_2">
 				<image src="../../static/common_nav_ic_back_black.png"></image>
 			</view>
 		</view>
-		<view class="block-action">
+		<view class="block-action" @tap="toOrderWater()">
 			<image class="action-img" src="../../static/icon_water.png"></image>
 			<view class="action-title">订单流水</view>
 			<view class="action-turn action_3">
 				<image src="../../static/common_nav_ic_back_black.png"></image>
 			</view>
 		</view>
-		<view class="block-action">
+		<view class="block-action" @tap="toServiceOn()">
 			<image class="action-img" src="../../static/icon_guanli_up.png"></image>
 			<view class="action-title">在架服务管理</view>
 			<view class="action-turn action_4">
 				<image src="../../static/common_nav_ic_back_black.png"></image>
 			</view>
 		</view>
-		<view class="block-action">
+		<view class="block-action" @tap="toServiceDown()">
 			<image class="action-img" src="../../static/icon_guanli_down.png"></image>
 			<view class="action-title">下架服务管理</view>
 			<view class="action-turn action_5">
 				<image src="../../static/common_nav_ic_back_black.png"></image>
 			</view>
 		</view>
-		<view class="block-action">
+		<view class="block-action" @tap="toShopInfo()">
 			<image class="action-img" src="../../static/icon_edit.png"></image>
 			<view class="action-title">编辑门店信息</view>
 			<view class="action-turn action_6">
@@ -88,7 +88,36 @@
 		// 	});
 		// },
 		methods: {
-			
+			//跳转到订单页面
+			toOrder() {
+				uni.navigateTo({
+					url: '../seller/orders'
+				})
+			},
+			//跳转到订单流水页面
+			toOrderWater() {
+				uni.navigateTo({
+					url: '../seller/orderWater'
+				})
+			},
+			//跳转到在架服务管理页面
+			toServiceOn() {
+				uni.navigateTo({
+					url: '../seller/serviceOn'
+				})
+			},
+			//跳转到下架服务管理页面
+			toServiceDown() {
+				uni.navigateTo({
+					url: '../seller/serviceDown'
+				})
+			},
+			//跳转到编辑门店管理页面
+			toShopInfo() {
+				uni.navigateTo({
+					url: '../seller/shopInfoEdit'
+				})
+			}
 		}
 	}
 </script>

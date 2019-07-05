@@ -285,18 +285,12 @@
         }, {
             "path" : "pages/seller/serviceOn",//商家端门店在架服务列表页，对应原型模块B6
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "在架服务列表"
             }
         }, {
             "path" : "pages/seller/serviceDown",//商家端门店下架服务列表页，对应原型模块B7
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "下架服务列表"
             }
         }, {
             "path" : "pages/seller/serviceOnDetail",//商家端门店在架服务详情页，对应原型模块B6-1
@@ -326,8 +320,18 @@
             "path" : "pages/seller/shopInfoEdit",//商家端门店信息编辑页，对应原型模块B8
             "style": {
             	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
+            		"titleNView": {
+            			"backgroundColor": "#ffffff",
+            			"titleText": "编辑门店信息",
+            			"buttons": [
+            				{
+            					"text": "保存",
+            					"float": "right",
+            					"fontSize": "10",
+            					"color": "#1B82D2"
+            				}
+            			]
+            		}
             	}
             }
         }
