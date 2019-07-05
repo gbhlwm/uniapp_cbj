@@ -67,23 +67,29 @@
 			店长身份证
 		</view>
 		<view class="image-upload">
-			<view class="upload-item">
+			<view class="upload-item" @tap="toImageUpload('identityCardImageA')" v-if="identityCardImageA" :style="{'background-image': 'url(' + identityCardImageA + ')'}">
 				<view class="upload-item-title">上传身份证正面</view>
 			</view>
-			<view class="upload-item">
+			<view class="upload-item" @tap="toImageUpload('identityCardImageA')" v-if="!identityCardImageA">
+				<view class="upload-item-title">上传身份证正面</view>
+			</view>
+			<view class="upload-item" @tap="toImageUpload('identityCardImageB')" v-if="identityCardImageB" :style="{'background-image': 'url(' + identityCardImageB + ')'}">
+				<view class="upload-item-title">上传身份证反面</view>
+			</view>
+			<view class="upload-item" @tap="toImageUpload('identityCardImageB')" v-if="!identityCardImageB">
 				<view class="upload-item-title">上传身份证反面</view>
 			</view>
 		</view>
 		<view class="block-title">
 			营业执照
 		</view>
-		<view @tap="toImageUpload()" class="image-upload" v-if="shopInfo.businessLicenseImage">
-			<view class="upload-item" :style="{'background-image': 'url(' + shopInfo.businessLicenseImage + ')'}">
+		<view class="image-upload" v-if="businessLicenseImage">
+			<view class="upload-item" @tap="toImageUpload('businessLicenseImage')" :style="{'background-image': 'url(' + businessLicenseImage + ')'}">
 				<view class="upload-item-title">上传营业执照照片</view>
 			</view>
 		</view>
-		<view @tap="toImageUpload()" class="image-upload" v-if="!shopInfo.businessLicenseImage">
-			<view class="upload-item">
+		<view class="image-upload" v-if="!businessLicenseImage">
+			<view class="upload-item" @tap="toImageUpload('businessLicenseImage')">
 				<view class="upload-item-title">上传营业执照照片</view>
 			</view>
 		</view>
@@ -116,12 +122,16 @@
 					businessLicenseImage: '',
 					code: ''
 				},
+				businessLicenseImage:'',
+				identityCardImageA:'',
+				identityCardImageB:'',
 				shopClassify: '',
 				shopAddress: '',
 				attributeName: '独立自营' ,
 				qualificationName: '一类'
 			}
 		},
+		onLoad() {},
 		methods: {
 			//将chooseimage的图片转base64
 			urlTobase64(url){
@@ -138,31 +148,24 @@
 				})
 			},
 			//图片上传
-			toImageUpload() {
+			toImageUpload(imageSrc) {
 				const vm = this;
 				uni.chooseImage({
 					count: 1,
 					complete(res) {
-						uni.request({
-							url: res.tempFilePaths[0],
-							method:'GET',
-							responseType: 'arraybuffer',
-							success: (res) => {
-								// console.log(uni.arrayBufferToBase64(res.data));
-								let base64 = uni.arrayBufferToBase64(res.data); //把arraybuffer转成base64 
-								base64 = 'data:' + res.header['content-type'] + ';base64,' + base64 //不加上这串字符，在页面无法显示的哦
-								uni.request({
-									url: 'http://chebianjie.net:8080/uaa/api/ut-files/uploadShoppingPic',
-									method: 'POST',
-									data: {
-										MultipartFile: [base64]
-									},
-									complete(res) {
-										console.log(res);
-									}
-								})
+						const uploadTask = uni.uploadFile({
+							url: 'http://chebianjie.net:55880/uaa/api/ut-files/uploadShoppingPic',
+							name: 'files',
+							header: {
+								'Authorization': 'Bearer ' + vm.token
+							},
+							files: res.tempFiles,
+							filePath: res.tempFilePaths[0],
+							complete(res) {
+								const imageData = JSON.parse(res.data);
+								vm[imageSrc] = imageData.data;
 							}
-						})
+						});
 					}
 				})
 			},
@@ -207,15 +210,31 @@
 					uni.showModal({
 						content: '请输入联系人手机号'
 					});
-				} else if (!vm.shopInfo.identityCardImage) {
+				} else if (!vm.identityCardImageA) {
 					uni.showModal({
-						content: '请上传身份证正反面'
+						content: '请上传身份证正面'
 					});
-				} else if (!vm.shopInfo.businessLicenseImage) {
+				} else if (!vm.identityCardImageB) {
+					uni.showModal({
+						content: '请上传身份证反面'
+					});
+				} else if (!vm.businessLicenseImage) {
 					uni.showModal({
 						content: '请上传营业执照照片'
 					});
-				} else {}
+				} else {
+					vm.shopInfo.identityCardImage = vm.identityCardImageA + vm.identityCardImageB;
+					vm.shopInfo.businessLicenseImage = vm.businessLicenseImage;
+					const url = vm.apiBaseUrl + ':7025/api/app/businessUser/registerBusinessUser'
+					uni.request({
+						url: url,
+						data: vm.shopInfo,
+						method: 'POST',
+						complete(res) {
+							
+						}
+					})
+				}
 			}
 		}
 	}
