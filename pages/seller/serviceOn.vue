@@ -2,7 +2,7 @@
 	<view class="page-service-on">
 		<!-- <view class="block-search">
 			<view class="type">
-				<picker @change="bindPickerChange" :value="index" :range="array">
+				<picker @change="bindPickerChange" :value="typeValue" :range="array">
 					<view class="uni-input">
 						<view class="select-value">{{typeName}}</view>
 						<image src="../../static/ic_down_n _white.png" mode=""></image>
@@ -39,8 +39,8 @@
 		components: {uniSwipeAction, mSearch},
 		data() {
 			return {
-				typeName: '全部',
-				array: ['全部', '美国', '巴西', '日本'],
+				typeValue: '',
+				array: [{name: '全部', id: ''}, {name: 'a', id: 1}],
 				options: [{
 					text: '编辑',
 					style: {
@@ -57,7 +57,7 @@
 		methods: {
 			bindPickerChange: function(e) {
 				console.log('picker发送选择改变，携带值为', e.target.value)
-				this.index = e.target.value
+				this.typeName = this.array[e.target.value];
 			},
 		}
 	}

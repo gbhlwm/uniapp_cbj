@@ -11,7 +11,7 @@ App.mpType = 'app'
 //全局token
 uni.setStorage({
 	key: 'token',
-	data: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIxNTEwNzY3Mjk5NjpDT05TVU1FUiIsInNjb3BlIjpbIm9wZW5pZCJdLCJleHAiOjE1NjIzMjY3MDgsImlhdCI6MTU2MjMxOTUwOCwiYXV0aG9yaXRpZXMiOlsiVXNlciJdLCJqdGkiOiI4N2EyNzAwNS00NDA1LTQyZDEtOWZiNy04M2JhY2NkZjA4OTYiLCJjbGllbnRfaWQiOiJ3ZWJfYXBwIn0.gWSxMUFkhaV_6Apev7U-1wVbZRq5Y9SxPtRUKC4O10n9cARhZ5fcIdt9w_vhMJ-NTgJ2-5cQBVw-jmjopECBlqKe6q68nG1QmK3Wk_fN5ONU6uv1FTsntPNN2VdBTvNc19hRkXtZXUqeymE4DYtUwF-Rhw4o1MiCXrlEIzYBpnAwJNT-mexnDQgCtNSXhG5uDrDK_4U9v8baUnxuo4Zz5Vqq1xZcEHLkffvGjTR9DzXK_modnnpL-TqSkIVosPgh02_7hMgm_6rtWCOXqrBuyLj9tnZMDXhn5wVsOieh7hponsq9B4orZPFjAAMZ2yJuymH76GyRG09Y0PPZM8d8Ww'
+	data: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiIxNTEwNzY3Mjk5NjpDT05TVU1FUiIsInNjb3BlIjpbIm9wZW5pZCJdLCJleHAiOjE1NjI1MTcwNTcsImlhdCI6MTU2MjUwOTg1NywiYXV0aG9yaXRpZXMiOlsiVXNlciJdLCJqdGkiOiIzZmM1NWNlMS03NzYyLTRmMmQtYjg4NS1iNzU5ODJmNTk1MDAiLCJjbGllbnRfaWQiOiJ3ZWJfYXBwIn0.hQ4U3VlcfTsDI7y_j93tSDE01YsbvG4hS5UpRHup2JcxxM7PRQfnT61RoaXguBs4osPbPVZozG1poOb0D9qVXj6IZAyFermJUQvOb4nSNY9hIqkovOPv6S-iOGZhPHEETUi0CFwPECCG5RUY4sIQS6-_hOiC1dkcphOUwGa3hc-uCd2w4CeZRVRL0tfGg60wQGeQfXm2RSwpb6VCa5KKpGwjr2C4Tm69GzcLmSzFoZMXSUD8rsqTk8OObKseixMkNKNQAvjzgMqPgHaOIkgq6SNjD38GxcvuQQGxWBmOjvC4H49-od9sOUlRGjgipiq_hFaXBhPbPaWhGNNrHiKF4A'
 })
 
 uni.getStorage({
@@ -35,6 +35,40 @@ uni.getStorage({
 })
 
 Vue.prototype.apiBaseUrl = 'http://test.chebianjie.com:4680';
+
+Vue.prototype.getToken = (callBack = () => {}) => {
+	uni.request({
+		url: 'http://chebianjie.net:55880/auth/consumer/login',
+		data: {"username": "15107672996", "password": "111111"},
+		method: 'POST',
+		complete(res) {
+			if (res.data.status === 2000000) {
+				uni.setStorage({
+					key: 'token',
+					data: res.data.data.access_token
+				});
+				Vue.prototype.token = res.data.data.access_token;
+				uni.request({
+					url: 'http://chebianjie.net:55880/uaa/api/ut-consumers/findByAccountFromApp',
+					method: 'GET',
+					header: {
+						'Authorization': 'Bearer ' + res.data.data.access_token
+					},
+					complete(res) {
+						if (res.data.status === 2000000) {
+							uni.setStorage({
+								key: 'userId',
+								data: res.data.data.id
+							});
+							Vue.prototype.userId = res.data.data.id;
+							callBack();
+						}
+					}
+				})
+			}
+		}
+	})
+};
 
 const app = new Vue({
     ...App

@@ -9,58 +9,82 @@
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
+			<picker class="area-picker" @change="bindPickerChangeClassify" :value="classifyIndex" :range="classList" range-key="name"></picker>
 			<view class="option-title">门店服务认证</view>
-			<input v-model="shopClassify" class="option-value" placeholder="请输入门店名称">
+			<input v-model="shopClassify" class="option-value" placeholder="请选择门店服务认证" disabled="true">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
 		<view class="block-option">
-			<view class="option-title">门店位置</view>
-			<input v-model="shopAddress" class="option-value" placeholder="请输入门店名称">
+			<view class="option-title">门店所在城市</view>
+			<input v-model="city" class="option-value" placeholder="请选择门店所在城市" disabled="true">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
+			<picker class="area-picker" @change="bindPickerChange" :value="areaIndex" :range="areas" range-key="name"></picker>
+			<view class="option-title">门店所在地区</view>
+			<input v-model="area" class="option-value" placeholder="请选择门店所在地区" disabled="true">
+			<view class="option-btn"></view>
+		</view>
+		<view class="block-option">
+			<view class="option-title">门店所在地经度</view>
+			<input v-model="shopInfo.lat" class="option-value" placeholder="门店所在地经度">
+			<view class="option-btn"></view>
+		</view>
+		<view class="block-option">
+			<view class="option-title">门店所在地纬度</view>
+			<input v-model="shopInfo.lon" class="option-value" placeholder="门店所在地纬度">
+			<view class="option-btn"></view>
+		</view>
+		<view class="block-option">
+			<view class="option-title">门店门店详细地址</view>
+			<input v-model="shopInfo.address" class="option-value" placeholder="请输入门店详细地址">
+			<view class="option-btn"></view>
+		</view>
+		<view class="block-option">
+			<picker class="area-picker" mode="time" :value="shopInfo.operatStartTime" start="00:00" end="23:59" @change="bindStartTimeChange"></picker>
 			<view class="option-title">开始营业时间</view>
-			<input v-model="shopInfo.operatStartTime" class="option-value" placeholder="请输入门店名称">
+			<input v-model="shopInfo.operatStartTime" class="option-value" placeholder="开始营业时间">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
 		<view class="block-option">
+			<picker class="area-picker" mode="time" :value="shopInfo.operatEndTime" start="00:00" end="23:59" @change="bindEndTimeChange"></picker>
 			<view class="option-title">结束营业时间</view>
-			<input v-model="shopInfo.operatEndTime" class="option-value" placeholder="请输入门店名称">
+			<input v-model="shopInfo.operatEndTime" class="option-value" placeholder="结束营业时间">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店属性</view>
-			<input v-model="attributeName" class="option-value" placeholder="请输入门店名称">
+			<input v-model="attributeName" class="option-value" placeholder="门店属性">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店资质</view>
-			<input v-model="qualificationName" class="option-value" placeholder="请输入门店名称">
+			<input v-model="qualificationName" class="option-value" placeholder="门店资质">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店电话</view>
-			<input v-model="shopInfo.mobile" class="option-value" placeholder="请输入门店名称">
+			<input v-model="shopInfo.mobile" class="option-value" placeholder="请输入门店电话">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">联系人</view>
-			<input v-model="shopInfo.contacts" class="option-value" placeholder="请输入门店名称">
+			<input v-model="shopInfo.contacts" class="option-value" placeholder="请输入联系人">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">联系手机号</view>
-			<input v-model="shopInfo.telephone" class="option-value" placeholder="请输入门店名称">
+			<input v-model="shopInfo.telephone" class="option-value" placeholder="请输入联系手机号">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-title">
@@ -97,22 +121,29 @@
 			门店详情
 		</view>
 		<view class="block-title-s">请提供图文内容给车便捷客服，平台会帮您录入</view>
-		<view class="action" @tap="toApplyPassword()">下一步</view>
+		<view class="action" @tap="toNext()">下一步</view>
+		<uni-indexed-list v-if="cityShow" :options="cityList" :showSelect="cityShow" @click="cityClick"></uni-indexed-list>
 	</view>
 </template>
 
 <script>
+	import uniIndexedList from "@/components/uni-indexed-list/uni-indexed-list.vue"
 	export default {
+		components: {uniIndexedList},
 		data() {
 			return {
+				cityShow: false,
+				latitude: '23.13559',
+				longitude: '113.335367',
 				shopInfo: {
 					name: '',
 					shopClassifyId: '',
-					lon:'',
-					lat: '',
+					lon: '113.335367',
+					lat: '23.13559',
 					address: '',
-					operatStartTime:'',
-					operatEndTime: '',
+					addressId: 174,
+					operatStartTime:'00:00',
+					operatEndTime: '00:00',
 					qualification: 1,
 					attribute: 1,
 					telephone: '',
@@ -122,6 +153,26 @@
 					businessLicenseImage: '',
 					code: ''
 				},
+				classList: [],
+				classifyIndex: 0,
+				city: '广州市',
+				cityId: 167,
+				areas: [
+					{id: 168, name: '从化区', longitude: '113.335367', latitude: '23.545283'},
+					{id: 169, name: '增城区', longitude: '113.829579', latitude: '23.290497'},
+					{id: 170, name: '南沙区', longitude: '113.53738', latitude: '22.794531'},
+					{id: 171, name: '花都区', longitude: '113.211184', latitude: '23.39205'},
+					{id: 172, name: '黄埔区', longitude: '113.450761', latitude: '23.103239'},
+					{id: 173, name: '白云区', longitude: '113.262831', latitude: '23.162281'},
+					{id: 174, name: '天河区', longitude: '113.335367', latitude: '23.13559'},
+					{id: 175, name: '海珠区', longitude: '113.262008', latitude: '23.103131'},
+					{id: 176, name: '荔湾区', longitude: '113.243038', latitude: '23.545283'},
+					{id: 177, name: '越秀区', longitude: '113.280714', latitude: '23.125624'},
+					{id: 178, name: '番禺区', longitude: '113.364619', latitude: '22.938582'},
+				],
+				areaId: 174,
+				area: '天河区',
+				areaIndex: 6,
 				businessLicenseImage:'',
 				identityCardImageA:'',
 				identityCardImageB:'',
@@ -131,8 +182,198 @@
 				qualificationName: '一类'
 			}
 		},
-		onLoad() {},
+		onLoad() {
+			const vm = this;
+			vm.getAllCity();
+			vm.getPosition();
+			vm.getClassList();
+			// vm.getAreas();
+		},
 		methods: {
+			//获取服务认证列表
+			getClassList() {
+				const vm = this;
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/returnShopClassify';
+				uni.request({
+					method: 'GET',
+					url: url,
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							vm.classList = res.data.data;
+							vm.shopClassify = vm.classList[0].name;
+							vm.shopInfo.shopClassifyId = vm.classList[0].id;
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取服务认证',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取服务认证',
+								content: '请求失败',
+							});
+						}
+					}
+				});
+			},
+			//获取定位
+			getPosition() {
+				const vm = this;
+				uni.getLocation({
+					geocode: true,
+					complete: (res) => {
+						if (res.address && res.address.city) {
+							vm.city = res.address.city;
+							vm.shopInfo.lat = res.latitude;
+							vm.shopInfo.lon = res.longitude;
+							vm.getCityId(vm.city, (res) => {
+								if (res.statusCode === 200 && res.data.status === 2000000) {
+									vm.cityId = res.data.data.id;
+									vm.getAreas();
+								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+									uni.showModal({
+										title: '获取城市',
+										content: res.data.message,
+									});
+									// vm.getShops();
+								} else {
+									uni.showModal({
+										title: '获取城市请求',
+										content: '失败',
+									});
+									// vm.getShops();
+								}
+							});
+						} else {
+							// uni.showModal({
+							// 	title: '获取定位',
+							// 	content: '失败',
+							// });
+							// vm.getShops();
+						}
+					}
+				})
+			},
+			bindStartTimeChange(e) {
+				this.shopInfo.operatStartTime = e.target.value;
+			},
+			bindEndTimeChange(e) {
+				this.shopInfo.operatEndTime = e.target.value;
+			},
+			bindPickerChangeClassify: function(e) {
+				const vm = this;
+				vm.classifyIndex = e.target.value;
+				vm.shopInfo.shopClassifyId = vm.classList[vm.classifyIndex].id;
+				vm.shopClassify = vm.classList[vm.classifyIndex].name;
+			},
+			bindPickerChange: function(e) {
+				const vm = this;
+				vm.areaIndex = e.target.value;
+				vm.shopInfo.addressId = vm.areas[vm.areaIndex].id;
+				vm.area = vm.areas[vm.areaIndex].name;
+			},
+			//获取城市下城区列表
+			getAreas(callBack = () => {}) {
+				const vm = this;
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCityDetail?parentId=' + vm.cityId;
+				uni.request({
+					url: url,
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							vm.areas = res.data.data;
+							vm.area = vm.areas[0].name
+							vm.shopInfo.addressId = vm.areas[0].id
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取城区',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取城区',
+								content: '请求失败',
+							});
+						}
+					}
+				})
+			},
+			//选择城市
+			cityClick(option) {
+				const vm = this;
+				console.log(option);
+				const city = option.item.name;
+				let cityId = 0;
+				for (let i = 0; i < vm.citys.length; i++) {
+					if (city === vm.citys[i].name) {
+						cityId = vm.citys[i].id
+					}
+				}
+				vm.city = city;
+				vm.cityId = cityId;
+				vm.getAreas();
+				this.cityShow = false;
+			},
+			// 获取所有城市
+			getAllCity() {
+				const vm = this;
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCity';
+				uni.request({
+					method: 'GET',
+					url: url,
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							const list = res.data.data;
+							const arr = [
+								{letter: 'A', data: []},
+								{letter: 'B', data: []},
+								{letter: 'C', data: []},
+								{letter: 'D', data: []},
+								{letter: 'E', data: []},
+								{letter: 'F', data: []},
+								{letter: 'G', data: []},
+								{letter: 'H', data: []},
+								{letter: 'I', data: []},
+								{letter: 'J', data: []},
+								{letter: 'K', data: []},
+								{letter: 'L', data: []},
+								{letter: 'M', data: []},
+								{letter: 'N', data: []},
+								{letter: 'O', data: []},
+								{letter: 'P', data: []},
+								{letter: 'Q', data: []},
+								{letter: 'R', data: []},
+								{letter: 'S', data: []},
+								{letter: 'T', data: []},
+								{letter: 'U', data: []},
+								{letter: 'V', data: []},
+								{letter: 'W', data: []},
+								{letter: 'X', data: []},
+								{letter: 'Y', data: []},
+								{letter: 'Z', data: []}
+							];
+							for (let i = 0; i < list.length; i++) {
+								for (let j = 0; j < arr.length; j++) {
+									if (list[i].initials === arr[j].letter) {
+										arr[j].data.push(list[i].name);
+									}
+								}
+							}
+							vm.cityList = arr;
+							vm.citys = list;
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取城市列表',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取城市列表',
+								content: '请求失败',
+							});
+						}
+					}
+				});
+			},
 			//将chooseimage的图片转base64
 			urlTobase64(url){
 				uni.request({
@@ -153,18 +394,20 @@
 				uni.chooseImage({
 					count: 1,
 					complete(res) {
-						const uploadTask = uni.uploadFile({
-							url: 'http://chebianjie.net:55880/uaa/api/ut-files/uploadShoppingPic',
-							name: 'files',
-							header: {
-								'Authorization': 'Bearer ' + vm.token
-							},
-							files: res.tempFiles,
-							filePath: res.tempFilePaths[0],
-							complete(res) {
-								const imageData = JSON.parse(res.data);
-								vm[imageSrc] = imageData.data;
-							}
+						vm.getToken(() => {
+							const uploadTask = uni.uploadFile({
+								url: 'http://chebianjie.net:55880/uaa/api/ut-files/uploadShoppingPic',
+								name: 'files',
+								header: {
+									'Authorization': 'Bearer ' + vm.token
+								},
+								files: res.tempFiles,
+								filePath: res.tempFilePaths[0],
+								complete(res) {
+									const imageData = JSON.parse(res.data);
+									vm[imageSrc] = imageData.data;
+								}
+							});
 						});
 					}
 				})
@@ -182,13 +425,21 @@
 					uni.showModal({
 						content: '请输入门店名称'
 					});
-				} else if (!vm.shopInfo.shopClassify) {
+				} else if (!vm.shopInfo.shopClassifyId) {
 					uni.showModal({
 						content: '请选择门店服务认证'
 					});
+				} else if (!vm.shopInfo.lon) {
+					uni.showModal({
+						content: '门店所在地纬度'
+					});
+				} else if (!vm.shopInfo.lat) {
+					uni.showModal({
+						content: '门店所在地经度'
+					});
 				} else if (!vm.shopInfo.address) {
 					uni.showModal({
-						content: '请选择门店位置'
+						content: '请填写门店位置'
 					});
 				} else if (!vm.shopInfo.operatStartTime) {
 					uni.showModal({
@@ -223,17 +474,20 @@
 						content: '请上传营业执照照片'
 					});
 				} else {
-					vm.shopInfo.identityCardImage = vm.identityCardImageA + vm.identityCardImageB;
+					vm.shopInfo.identityCardImage = vm.identityCardImageA + ',' + vm.identityCardImageB;
 					vm.shopInfo.businessLicenseImage = vm.businessLicenseImage;
-					const url = vm.apiBaseUrl + ':7025/api/app/businessUser/registerBusinessUser'
-					uni.request({
-						url: url,
-						data: vm.shopInfo,
-						method: 'POST',
-						complete(res) {
-							
-						}
-					})
+					const url = vm.apiBaseUrl + '/api-userapp/api/app/businessUser/registerBusinessUser'
+					vm.getToken(() => {
+						vm.shopInfo.userId = vm.userId;
+						uni.request({
+							url: url,
+							data: vm.shopInfo,
+							method: 'POST',
+							complete(res) {
+								console.log(res);
+							}
+						})
+					});
 				}
 			}
 		}
@@ -252,7 +506,7 @@
 			margin: 0 20upx;
 		}
 		.block-option {
-			display: flex; align-items: center; height: 100upx; margin: 0 20upx;
+			display: flex; align-items: center; height: 100upx; margin: 0 20upx; position: relative;
 			.option-title {
 				width: 200upx;
 				font-size: 30upx; color: #131319; flex-grow: 2; text-align: left;
@@ -267,6 +521,9 @@
 				image {
 					width: 13upx; height: 21upx;
 				}
+			}
+			.area-picker {
+				position: absolute; top: 0; bottom: 0; left: 0; right: 0; z-index: 10;
 			}
 		}
 		.image-upload {

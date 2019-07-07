@@ -198,11 +198,11 @@
 		},
 		onLoad() {
 			const vm = this;
-			// vm.getAllCity();
+			vm.getAllCity();
 			vm.getBanners();
-			// vm.getServiceList();
-			// vm.getClassList();
-			// vm.getPosition();
+			vm.getServiceList();
+			vm.getClassList();
+			vm.getPosition();
 		},
 		//下拉刷新，需要自己在page.json文件中配置开启页面下拉刷新 "enablePullDownRefresh": true
 		onPullDownRefresh() {
@@ -324,10 +324,10 @@
 								}
 							});
 						} else {
-							uni.showModal({
-								title: '获取定位',
-								content: '失败',
-							});
+							// uni.showModal({
+							// 	title: '获取定位',
+							// 	content: '失败',
+							// });
 							vm.getShops();
 						}
 					}

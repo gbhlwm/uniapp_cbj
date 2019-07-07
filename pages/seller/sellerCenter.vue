@@ -120,7 +120,18 @@
 			},
 			//扫一扫
 			toScan() {
-				
+				uni.scanCode({
+					onlyFromCamera: true,
+					scanType: ['qrCode'],
+					success(res) {
+						
+					},
+					fail(res) {
+						uni.showModal({
+							content: '识别失败'
+						})
+					}
+				})
 			}
 		}
 	}
