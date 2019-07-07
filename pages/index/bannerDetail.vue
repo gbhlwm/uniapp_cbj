@@ -29,7 +29,7 @@
 			//获取banner详情
 			getBannerDetail(bannerId) {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':7011/api/app/advertisement/viewAdvertisement?id=' + bannerId;
+				const url = vm.apiBaseUrl + '/api-order/api/app/advertisement/viewAdvertisement?id=' + bannerId;
 				uni.request({
 					method: 'GET',
 					url: url,

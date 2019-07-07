@@ -198,11 +198,11 @@
 		},
 		onLoad() {
 			const vm = this;
-			vm.getAllCity();
+			// vm.getAllCity();
 			vm.getBanners();
-			vm.getServiceList();
-			vm.getClassList();
-			vm.getPosition();
+			// vm.getServiceList();
+			// vm.getClassList();
+			// vm.getPosition();
 		},
 		//下拉刷新，需要自己在page.json文件中配置开启页面下拉刷新 "enablePullDownRefresh": true
 		onPullDownRefresh() {
@@ -237,7 +237,7 @@
 			// 获取所有城市
 			getAllCity() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/shop/findAllCity';
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCity';
 				uni.request({
 					method: 'GET',
 					url: url,
@@ -401,7 +401,7 @@
 			//获取服务分类列表
 			getServiceList() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/shop/returnServiceClassify';
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/returnServiceClassify';
 				uni.request({
 					method: 'GET',
 					url: url,
@@ -429,7 +429,7 @@
 			//获取服务认证列表
 			getClassList() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/shop/returnShopClassify';
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/returnShopClassify';
 				uni.request({
 					method: 'GET',
 					url: url,
@@ -453,7 +453,7 @@
 			//获取banners
 			getBanners() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':7011/api/app/advertisement/findAdvertisement?pageNumber=1&pageSize=999';
+				const url = vm.apiBaseUrl + '/api-order/api/app/advertisement/findAdvertisement?pageNumber=1&pageSize=999';
 				uni.request({
 					method: 'GET',
 					url: url,
@@ -477,7 +477,7 @@
 			//根据城市名获取城市id
 			getCityId(cityName, callback = () => {}) {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/shop/findCityByName?name=' + cityName;
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findCityByName?name=' + cityName;
 				uni.request({
 					url: url,
 					complete: (res) => {
@@ -488,7 +488,7 @@
 			//获取城市下城区列表
 			getAreas(callBack = () => {}) {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/shop/findAllCityDetail?parentId=' + vm.cityId;
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCityDetail?parentId=' + vm.cityId;
 				uni.request({
 					url: url,
 					complete: (res) => {
@@ -514,7 +514,7 @@
 			//根据获取门店列表
 			getShops() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/shop/findShopByParam';
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findShopByParam';
 				const data = {
 					lon: vm.longitude,
 					lat: vm.latitude,

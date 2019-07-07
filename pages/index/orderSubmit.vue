@@ -71,7 +71,7 @@
 			// 获取订单结算数据
 			getOrderSubmitData() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':7011/api/app/order/countOrder';
+				const url = vm.apiBaseUrl + '/api-order/api/app/order/countOrder';
 				uni.request({
 					method: 'GET',
 					url: url,
@@ -99,7 +99,7 @@
 			//跳转支付页面
 			toPay() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':7011/api/app/order/saveOrder';
+				const url = vm.apiBaseUrl + '/api-order/api/app/order/saveOrder';
 				uni.request({
 					method: 'POST',
 					url: url,

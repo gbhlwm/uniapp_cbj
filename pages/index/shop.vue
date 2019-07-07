@@ -133,7 +133,7 @@
 			//获取门店详情
 			getShopDetail() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/shop/findShopDetail';
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findShopDetail';
 				uni.request({
 					method: 'GET',
 					url: url,

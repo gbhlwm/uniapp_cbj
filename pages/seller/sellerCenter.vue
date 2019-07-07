@@ -117,6 +117,10 @@
 				uni.navigateTo({
 					url: '../seller/shopInfoEdit'
 				})
+			},
+			//扫一扫
+			toScan() {
+				
 			}
 		}
 	}

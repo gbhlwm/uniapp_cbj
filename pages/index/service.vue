@@ -229,7 +229,7 @@
 			//获取服务详情
 			getServiceDetail() {
 				const vm = this;
-				const url = vm.apiBaseUrl + ':8012/api/app/services/findServicesById';
+				const url = vm.apiBaseUrl + '/api-good/api/app/services/findServicesById';
 				uni.request({
 					method: 'GET',
 					url: url,
