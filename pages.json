@@ -154,10 +154,7 @@
         }, {
             "path" : "pages/seller/agreement",//商家端申请入驻协议页，对应原型模块B1-3
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "用户协议"
             }
         }, {
             "path" : "pages/seller/forgetPassword",//商家端登录忘记密码页，对应原型模块B1-4
@@ -188,10 +185,7 @@
         }, {
 			"path" : "pages/seller/accountInfo",//商家端账号资料页，对应原型模块B2-1
 			"style": {
-				"app-plus": {
-					"titleNView": false ,//禁用原生导航栏
-					"softinputNavBar":"none"
-				}
+				"navigationBarTitleText": "账号"
 			}
 		}, {
             "path" : "pages/seller/changePhone",//商家端更换手机页，对应原型模块B2-1-1
@@ -304,8 +298,18 @@
             "path" : "pages/seller/serviceOnEdit",//商家端门店在架服务添加编辑页，对应原型模块B6-2
             "style": {
             	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
+            		"titleNView": {
+            			"backgroundColor": "#ffffff",
+            			"titleText": "服务编辑",
+            			"buttons": [
+            				{
+            					"text": "保存",
+            					"float": "right",
+            					"fontSize": "10",
+            					"color": "#1B82D2"
+            				}
+            			]
+            		}
             	}
             }
         }, {

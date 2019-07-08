@@ -1,14 +1,14 @@
 <template>
 	<view class="page-seller-center">
-		<view class="block-info">
-			<view class="seller-head"></view>
+		<view class="block-info" @tap="toAccountInfo()">
+			<view class="seller-head" :style="{'background-image': 'url(' + shopInfo.shopImage + ')'}"></view>
 			<view class="seller-info">
 				<view class="seller-info-up">
-					<view class="seller-name">天河维修店</view>
-					<view class="seller-classify">综合服务店</view>
+					<view class="seller-name">{{shopInfo.name}}</view>
+					<view class="seller-classify">{{shopInfo.shopClassifyName}}</view>
 				</view>
 				<view class="seller-info-down">
-					总评分 5.00    |    总订单999+
+					总评分 {{shopInfo.star}}    |    总订单{{shopInfo.orderNumber}}
 				</view>
 			</view>
 			<image class="more" src="../../static/common_nav_ic_back_black.png"></image>
@@ -62,32 +62,66 @@
 	export default {
 		data() {
 			return {
-				
+				shopId: '',
+				shopUserId: '',
+				shopInfo: {}
 			}
 		},
-		// onLoad() {
-		// 	uni.getStorage({
-		// 		key: 'sellerToken',
-		// 		complete: (res) => {
-		// 			if (!res.data) {
-		// 				uni.navigateTo({
-		// 					url: '../seller/login'
-		// 				});
-		// 			}
-		// 		}
-		// 	});
-		// },
-		// onShow() {
-		// 	uni.getStorage({
-		// 		key: 'sellerToken',
-		// 		complete: (res) => {
-		// 			if (!res.data) {
-		// 				uni.navigateBack();
-		// 			}
-		// 		}
-		// 	});
-		// },
+		onLoad() {
+			const vm = this;
+			uni.getStorage({
+				key: 'shopUserId',
+				complete: (res) => {
+					if (!res.data) {
+						uni.navigateTo({
+							url: '../seller/login'
+						});
+					} else {
+						vm.shopUserId = res.data;
+						uni.request({
+							url: vm.apiBaseUrl + '/api-userapp/api/app/businessUser/MyBusiness?id=' + vm.shopUserId,
+							method: 'GET',
+							complete(res) {
+								if (res.statusCode === 200 && res.data.status === 2000000) {
+									uni.setStorage({
+										key: 'shopId',
+										data: res.data.data[0].id,
+									});
+									vm.shopInfo = res.data.data[0];
+								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+									uni.showModal({
+										title: '获取门店账号资料',
+										content: res.data.message,
+									});
+								} else {
+									uni.showModal({
+										title: '获取门店账号资料',
+										content: '请求失败',
+									});
+								}
+							}
+						})
+					}
+				}
+			});
+		},
+		onShow() {
+			uni.getStorage({
+				key: 'shopUserId',
+				complete: (res) => {
+					if (!res.data) {
+						uni.navigateBack();
+					}
+				}
+			});
+		},
 		methods: {
+			//跳转到门店账号信息页面
+			toAccountInfo() {
+				uni.navigateTo({
+					url: '../seller/accountInfo'
+				})
+			},
 			//跳转到订单页面
 			toOrder() {
 				uni.navigateTo({

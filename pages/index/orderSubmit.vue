@@ -99,37 +99,45 @@
 			//跳转支付页面
 			toPay() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/order/saveOrder';
-				uni.request({
-					method: 'POST',
-					url: url,
-					data: {
-						mealId: vm.mealId,
-						number: vm.number,
-						userRemark: vm.remark
-					},
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							uni.showModal({
-								content: '下单成功',
-								complete() {
-									uni.reLaunch({
-										url: '../index/index'
-									});
-								}
-							});
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取订单数据',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取订单数据',
-								content: '请求失败',
-							});
+				const url = vm.apiBaseUrl + '/api-order/api/app/order/setOrder';
+				vm.getToken(() => {
+					uni.request({
+						method: 'POST',
+						url: url,
+						header: {
+							"Content-Type": "application/x-www-form-urlencoded"
+						},
+						data: {
+							userId: vm.userId,
+							nickName: vm.userNickName,
+							userPhone : vm.account,
+							mealId: vm.mealId,
+							number: vm.number,
+							userRemark: vm.remark
+						},
+						complete: (res) => {
+							if (res.statusCode === 200 && res.data.status === 2000000) {
+								uni.showModal({
+									content: '下单成功',
+									complete() {
+										uni.reLaunch({
+											url: '../index/index'
+										});
+									}
+								});
+							} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+								uni.showModal({
+									title: '获取订单数据',
+									content: res.data.message,
+								});
+							} else {
+								uni.showModal({
+									title: '获取订单数据',
+									content: '请求失败',
+								});
+							}
 						}
-					}
+					});
 				});
 			}
 		}

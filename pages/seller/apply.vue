@@ -16,7 +16,7 @@
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
-		<view class="block-option">
+		<view class="block-option" @tap="cityShow = true;">
 			<view class="option-title">门店所在城市</view>
 			<input v-model="city" class="option-value" placeholder="请选择门店所在城市" disabled="true">
 			<view class="option-btn"></view>
@@ -150,8 +150,7 @@
 					contacts:'',
 					mobile:'',
 					identityCardImage: '',
-					businessLicenseImage: '',
-					code: ''
+					businessLicenseImage: ''
 				},
 				classList: [],
 				classifyIndex: 0,
@@ -396,7 +395,7 @@
 					complete(res) {
 						vm.getToken(() => {
 							const uploadTask = uni.uploadFile({
-								url: 'http://chebianjie.net:55880/uaa/api/ut-files/uploadShoppingPic',
+								url: vm.serviceBaseUrl + '/uaa/api/ut-files/uploadShoppingPic',
 								name: 'files',
 								header: {
 									'Authorization': 'Bearer ' + vm.token
@@ -476,25 +475,32 @@
 				} else {
 					vm.shopInfo.identityCardImage = vm.identityCardImageA + ',' + vm.identityCardImageB;
 					vm.shopInfo.businessLicenseImage = vm.businessLicenseImage;
-					const url = vm.apiBaseUrl + '/api-userapp/api/app/businessUser/registerBusinessUser'
-					vm.getToken(() => {
-						vm.shopInfo.userId = vm.userId;
-						uni.request({
-							url: url,
-							data: vm.shopInfo,
-							method: 'POST',
-							complete(res) {
-								console.log(res);
-							}
-						})
+					uni.navigateTo({
+						url: '../seller/applyPassword?shopInfo=' + JSON.stringify(vm.shopInfo)
 					});
+					// const url = vm.apiBaseUrl + '/api-userapp/api/app/businessUser/registerBusinessUser'
+					// vm.getToken(() => {
+					// 	vm.shopInfo.userId = vm.userId;
+					// 	uni.request({
+					// 		url: url,
+					// 		data: vm.shopInfo,
+					// 		method: 'POST',
+					// 		complete(res) {
+					// 			console.log(res);
+					// 		}
+					// 	})
+					// });
 				}
 			}
 		}
 	}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+	.uni-indexed {
+		position: fixed; top: 0; bottom: 0; left: 0; right: 0; overflow: scroll; background: white;
+		z-index: 99;
+	}
 	.page-apply {
 		background: #F5F5F5;
 		.block-title {

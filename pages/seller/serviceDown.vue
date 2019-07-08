@@ -1,31 +1,31 @@
 <template>
 	<view class="page-service-on">
-		<!-- <view class="block-search">
+		<view class="block-search">
 			<view class="type">
-				<picker @change="bindPickerChange" :value="index" :range="array">
+				<picker @change="bindPickerChange" :value="classifyIndex" :range="array" range-key="name">
 					<view class="uni-input">
-						<view class="select-value">{{typeName}}</view>
+						<view class="select-value">{{array[classifyIndex].name}}</view>
 						<image src="../../static/ic_down_n _white.png" mode=""></image>
 					</view>
 				</picker>
 			</view>
-			<mSearch class="search-action" :mode="2" button="inside" :show="false" @search="search($event,3)"></mSearch>
-		</view> -->
-		<uni-swipe-action :options="options" v-for="i in 6" :key="i">
+			<mSearch class="search-action" :mode="2" button="inside" :show="false" @search="toSearch($event)"></mSearch>
+		</view>
+		<uni-swipe-action :options="options" v-for="item in services" :key="item.id" @click="toSwiperAction($event, item.id)">
 			<view class='item'>
-				<view class="item-cover"></view>
+				<view class="item-cover" :style="{'background-image': 'url(' + item.image + ')'}"></view>
 				<view class="item-body">
-					<view class="shop-title">服务名称</view>
-					<view class="shop-label">洗车美容</view>
+					<view class="shop-title">{{item.name}}</view>
+					<view class="shop-label">{{item.classifyName}}</view>
 				</view>
 				<view class="item-price">
-					<view class="total">￥88</view>
-					<view class="market">$100</view>
+					<view class="total">￥{{item.price}}</view>
+					<view class="market">￥{{item.marketPrice}}</view>
 				</view>
 			</view>
 		</uni-swipe-action>
 		<!-- <view class="action">
-			<view class="btn-add">
+			<view class="btn-add" @tap="toAdd(false)">
 				新增
 			</view>
 		</view> -->
@@ -39,8 +39,14 @@
 		components: {uniSwipeAction, mSearch},
 		data() {
 			return {
-				typeName: '全部',
-				array: ['全部', '美国', '巴西', '日本'],
+				shopId: '',
+				userId: '',
+				searchKey: '',
+				currentPage: 1,
+				classifyId: '',
+				classifyIndex: 0,
+				array: [{name: ''}],
+				services: [],
 				options: [{
 					text: '编辑',
 					style: {
@@ -59,11 +65,161 @@
 				}]
 			}
 		},
+		onLoad() {
+			const vm = this;
+			uni.getStorage({
+				key: 'shopId',
+				complete(res) {
+					vm.shopId = res.data;
+					uni.getStorage({
+						key: 'userId',
+						complete(res) {
+							vm.userId = res.data;
+							uni.request({
+								url: vm.apiBaseUrl + '/api-good/api/app/shop/returnServiceClassify',
+								method: 'GET',
+								complete(res) {
+									if (res.statusCode === 200 && res.data.status === 2000000) {
+										let arr = [{name: '全部', id: ''}];
+										arr = arr.concat(res.data.data);
+										vm.array = arr;
+									} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+										uni.showModal({
+											title: '获取门店服务类型',
+											content: res.data.message,
+										});
+									} else {
+										uni.showModal({
+											title: '获取门店服务类型',
+											content: '请求失败',
+										});
+									}
+								}
+							});
+							vm.getServices();
+						}
+					})
+				}
+			});
+		},
+		onReachBottom() {
+			const vm = this;
+			vm.currentPage += 1;
+			vm.getServices();
+		},
+		onPullDownRefresh() {
+			const vm = this;
+			vm.currentPage = 1;
+			vm.getServices();
+		},
 		methods: {
 			bindPickerChange: function(e) {
-				console.log('picker发送选择改变，携带值为', e.target.value)
-				this.index = e.target.value
+				const vm = this;
+				vm.classifyIndex = e.target.value;
+				vm.classifyId = vm.array[e.target.value].id;
+				vm.currentPage = 1;
+				vm.getServices();
 			},
+			//点击搜索
+			toSearch(e) {
+				const vm = this;
+				console.log(e);
+				vm.searchKey = e;
+				vm.currentPage = 1;
+				vm.getServices();
+			},
+			//获取在架服务列表
+			getServices() {
+				const vm = this;
+				const url = vm.apiBaseUrl + '/api-good/api/app/services/findUserServiceList';
+				const data = {
+					pageNumber: vm.currentPage,
+					id: vm.shopId,
+					status: 2
+				}
+				if (vm.classifyId) {
+					data.classifyId = vm.classifyId;
+				}
+				if (vm.searchKey) {
+					data.name = vm.searchKey;
+				}
+				uni.request({
+					url: url,
+					method: 'GET',
+					data: data,
+					complete(res) {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							const data = res.data.data[1];
+							if (vm.currentPage === 1) {
+								vm.services = data;
+							} else {
+								if (data.length) {
+									for (let i = 0; i < data.length; i += 1) {
+										vm.services.push(data[i]);
+									}
+								} else {
+									uni.showToast({title: '到底了'});
+								}
+							}
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取在架服务',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取在架服务',
+								content: '请求失败',
+							});
+						}
+					}
+				})
+			},
+			//新增按钮
+			toAdd(serviceId) {
+				const vm = this;
+				const url = serviceId ? '../seller/serviceOnEdit?serviceId=' + serviceId : '../seller/serviceOnEdit';
+				uni.navigateTo({
+					url: url
+				});
+			},
+			//滑动选项点击事件
+			toSwiperAction(e, serviceId) {
+				const vm = this;
+				console.log(e);
+				console.log(serviceId);
+				if (e.index === 1) {
+					//点击上架
+					uni.request({
+						url: vm.apiBaseUrl + '/api-good/api/app/services/uplowerService?id=' + serviceId + '&status=1',
+						method: 'PUT',
+						complete(res) {
+							if (res.statusCode === 200 && res.data.status === 2000000) {
+								uni.showToast({title: '上架成功'});
+								vm.currentPage = 1;
+								vm.getServices();
+							} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+								uni.showModal({
+									title: '下架服务',
+									content: res.data.message,
+								});
+							} else {
+								uni.showModal({
+									title: '下架服务',
+									content: '请求失败',
+								});
+							}
+						}
+					})
+				} else if (e.index === 0) {
+					//点解编辑
+					uni.navigateTo({
+						url: '../seller/serviceDownEdit?serviceId=' + serviceId
+					});
+				} else {
+					//删除服务
+				}
+			}
 		}
 	}
 </script>
@@ -75,9 +231,13 @@
 	.block-search {
 		display: flex;
 		.type {
-			flex-grow: 3; display: flex; align-items: center;
-			image {
-				width: 21upx; height: 13upx;
+			flex-grow: 3; display: flex; align-items: center; justify-content: center;
+			.uni-input {
+				display: flex; align-items: center; background: #1B82D2; height: 58upx; padding: 0 10upx;
+				font-size: 28upx; color: white;
+				image {
+					width: 21upx; height: 13upx; margin-left: 5upx;
+				}
 			}
 		}
 		.search-action {

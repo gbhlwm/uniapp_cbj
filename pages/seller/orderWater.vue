@@ -20,22 +20,37 @@
 				<view class="item">金额：￥656</view>
 			</view>
 		</view>
+		<w-picker mode="yearMonth" startYear="2000" endYear="9999" step="1" :current="true" @confirm="onConfirm" ref="picker" themeColor="#f00"></w-picker>
 	</view>
 </template>
 
 <script>
+	import wPicker from "@/components/w-picker/w-picker.vue";
 	export default {
+		components:{
+		    wPicker
+		},
 		data() {
 			return {
 				navis: [
 					{name: '收入', type: 1},
 					{name: '支出', type: 2}
 				],
-				naviType: 1
+				naviType: 1,
+				currentPage: 1,
+				orders: [],
+				startTime: false,
+				endTime: false
 			}
 		},
+		onNavigationBarButtonTap() {
+			const vm = this;
+			vm.$refs.picker.show();
+		},
 		methods: {
-			
+			onConfirm(e) {
+				console.log(e);
+			},
 		}
 	}
 </script>

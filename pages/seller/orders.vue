@@ -1,32 +1,36 @@
 <template>
 	<view>
 		<view class="navis">
-			<view class="item" :class="{active: naviType === item.type}" v-for="item in navis" :key="item.type">
+			<view class="item" :class="{active: naviType === item.type}" v-for="item in navis" :key="item.type" @tap="orderSelectType(item.type)">
 				{{item.name}}
 			</view>
 		</view>
 		<view class="order-list">
-			<view class="item" v-for="i in 4" :key="i">
+			<view class="item" v-for="item in orders" :key="item.id">
 				<view class="item-head">
-					<view>订单编号：2132123123132</view>
-					<view class="status">待核销</view>
+					<view>订单编号：{{item.orderSn}}</view>
+					<view class="status" v-if="item.status === 2">待核销</view>
+					<view class="status" v-if="item.status === 3">已核销</view>
 				</view>
 				<view class="item-body">
-					<view class="cover"></view>
-					<view class="name">服务名称</view>
-					<view class="label">套餐</view>
+					<view class="cover" :style="{'background-image': 'url(' + item.image + ')'}"></view>
+					<view class="name">{{item.serviceName}}</view>
+					<view class="label">{{item.mealName}}</view>
 					<view class="price">
-						<view class="value">￥110</view>
-						<view class="num">x1</view>
+						<view class="value">￥{{item.price}}</view>
+						<view class="num">x{{item.number}}</view>
 					</view>
 				</view>
 				<view class="item-footer">
 					<view class="total">
-						<view class="title">共2件商品  总计：</view>
-						<view class="value">$100</view>
+						<view class="title">共{{item.number}}件商品  总计：</view>
+						<view class="value">${{item.total}}</view>
 					</view>
-					<view class="action">
+					<view class="action" v-if="item.status === 2">
 						核销
+					</view>
+					<view class="action" v-if="item.status === 3" @tap="toDetail(item.id)">
+						查看详情
 					</view>
 				</view>
 			</view>
@@ -40,14 +44,104 @@
 			return {
 				navis: [
 					{ name: '全部', type: '' },
-					{ name: '待核销', type: 1 },
-					{ name: '已核销', type: 2 }
+					{ name: '待核销', type: 2 },
+					{ name: '已核销', type: 3 }
 				],
-				naviType: ''
+				naviType: '',
+				currentPage: 1,
+				orders: [],
+				shopId: '',
+				shopUserId: ''
 			}
 		},
+		onLoad() {
+			const vm = this;
+			uni.getStorage({
+				key: 'shopId',
+				complete(res) {
+					vm.shopId = res.data;
+					uni.getStorage({
+						key: 'shopUserId',
+						complete(res) {
+							vm.shopUserId = res.data;
+							vm.getOrders();
+						}
+					})
+				}
+			});
+		},
+		onNavigationBarButtonTap() {
+			uni.navigateTo({
+				url: '../seller/orderAfter'
+			});
+		},
+		onPullDownRefresh() {
+			const vm = this;
+			vm.currentPage = 1;
+			vm.getOrders();
+		},
+		onReachBottom() {
+			const vm = this;
+			vm.currentPage += 1;
+			vm.getOrders();
+		},
 		methods: {
-			
+			//跳转订单详情
+			toDetail(orderId) {
+				uni.navigateTo({
+					url: '../seller/orderDetail?orderId=' + orderId
+				});
+			},
+			//选择订单类型
+			orderSelectType(type) {
+				const vm = this;
+				vm.naviType = type;
+				vm.currentPage = 1;
+				vm.getOrders();
+			},
+			//获取订单列表
+			getOrders() {
+				const vm = this;
+				const url = vm.apiBaseUrl + '/api-order/api/app/order/findShopOrder';
+				const data = {
+					pageNumber: vm.currentPage,
+					shopId: vm.shopId
+				}
+				if (vm.naviType) {
+					data.status = vm.naviType;
+				}
+				uni.request({
+					url: url,
+					method: 'GET',
+					data: data,
+					complete(res) {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							const data = res.data.data;
+							if (vm.currentPage === 1) {
+								vm.orders = data;
+							} else {
+								if (data.length) {
+									for (let i = 0; i < data.length; i += 1) {
+										vm.orders.push(data[i]);
+									}
+								} else {
+									uni.showToast({title: '到底了'});
+								}
+							}
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取门店订单',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取门店订单',
+								content: '请求失败',
+							});
+						}
+					}
+				})
+			},
 		}
 	}
 </script>
