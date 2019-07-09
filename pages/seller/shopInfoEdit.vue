@@ -5,7 +5,7 @@
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店名称</view>
-			<input v-model="shopInfo.name" class="option-value" placeholder="请输入门店名称">
+			<input v-model="shopInfo.name" class="option-value" placeholder="请输入门店名称" disabled="true">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
@@ -22,24 +22,24 @@
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
-			<picker class="area-picker" @change="bindPickerChange" :value="areaIndex" :range="areas" range-key="name"></picker>
+			<!-- <picker class="area-picker" @change="bindPickerChange" :value="areaIndex" :range="areas" range-key="name"></picker> -->
 			<view class="option-title">门店所在地区</view>
 			<input v-model="area" class="option-value" placeholder="请选择门店所在地区" disabled="true">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店所在地经度</view>
-			<input v-model="shopInfo.lat" class="option-value" placeholder="门店所在地经度">
+			<input v-model="shopInfo.lat" class="option-value" placeholder="门店所在地经度" disabled="true">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店所在地纬度</view>
-			<input v-model="shopInfo.lon" class="option-value" placeholder="门店所在地纬度">
+			<input v-model="shopInfo.lon" class="option-value" placeholder="门店所在地纬度" disabled="true">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店门店详细地址</view>
-			<input v-model="shopInfo.address" class="option-value" placeholder="请输入门店详细地址">
+			<input v-model="shopInfo.address" class="option-value" placeholder="请输入门店详细地址" disabled="true">
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-option">
@@ -60,14 +60,14 @@
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店属性</view>
-			<input v-model="attributeName" class="option-value" placeholder="门店属性">
+			<input v-model="attributeName" class="option-value" placeholder="门店属性" disabled="true">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
 		<view class="block-option">
 			<view class="option-title">门店资质</view>
-			<input v-model="qualificationName" class="option-value" placeholder="门店资质">
+			<input v-model="qualificationName" class="option-value" placeholder="门店资质" disabled="true">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
@@ -88,23 +88,6 @@
 			<view class="option-btn"></view>
 		</view>
 		<view class="block-title">
-			店长身份证
-		</view>
-		<view class="image-upload">
-			<view class="upload-item" @tap="toImageUpload('identityCardImageA')" v-if="identityCardImageA" :style="{'background-image': 'url(' + identityCardImageA + ')'}">
-				<view class="upload-item-title">上传身份证正面</view>
-			</view>
-			<view class="upload-item" @tap="toImageUpload('identityCardImageA')" v-if="!identityCardImageA">
-				<view class="upload-item-title">上传身份证正面</view>
-			</view>
-			<view class="upload-item" @tap="toImageUpload('identityCardImageB')" v-if="identityCardImageB" :style="{'background-image': 'url(' + identityCardImageB + ')'}">
-				<view class="upload-item-title">上传身份证反面</view>
-			</view>
-			<view class="upload-item" @tap="toImageUpload('identityCardImageB')" v-if="!identityCardImageB">
-				<view class="upload-item-title">上传身份证反面</view>
-			</view>
-		</view>
-		<view class="block-title">
 			营业执照
 		</view>
 		<view class="image-upload" v-if="businessLicenseImage">
@@ -121,7 +104,7 @@
 			门店详情
 		</view>
 		<view class="block-title-s">请提供图文内容给车便捷客服，平台会帮您录入</view>
-		<view class="action" @tap="toNext()">下一步</view>
+		<!-- <view class="action" @tap="toNext()">下一步</view> -->
 		<uni-indexed-list v-if="cityShow" :options="cityList" :showSelect="cityShow" @click="cityClick"></uni-indexed-list>
 	</view>
 </template>
@@ -149,7 +132,6 @@
 					telephone: '',
 					contacts:'',
 					mobile:'',
-					identityCardImage: '',
 					businessLicenseImage: '',
 					code: ''
 				},
@@ -187,9 +169,46 @@
 			vm.getAllCity();
 			vm.getPosition();
 			vm.getClassList();
+			vm.getShopInfo();
 			// vm.getAreas();
 		},
+		onNavigationBarButtonTap() {
+			const vm = this;
+			vm.saveInfo();
+		},
 		methods: {
+			//获取门店信息
+			getShopInfo() {
+				const vm = this;
+				uni.getStorage({
+					key: 'shopId',
+					complete(res) {
+						uni.request({
+							url: vm.apiBaseUrl + '/api-good/api/app/shop/editShop',
+							method: 'GET',
+							data: {
+								id: res.data
+							},
+							complete(res) {
+								if (res.statusCode === 200 && res.data.status === 2000000) {
+									vm.shopInfo = res.data.data;
+									vm.businessLicenseImage = vm.shopInfo.businessLicenseImage;
+								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+									uni.showModal({
+										title: '获取门店信息',
+										content: res.data.message,
+									});
+								} else {
+									uni.showModal({
+										title: '获取门店信息',
+										content: '请求失败',
+									});
+								}
+							}
+						})
+					}
+				});
+			},
 			//获取服务认证列表
 			getClassList() {
 				const vm = this;
@@ -419,7 +438,7 @@
 				});
 			},
 			//下一步
-			toNext() {
+			saveInfo() {
 				const vm = this;
 				if (!vm.shopInfo.name) {
 					uni.showModal({
@@ -461,30 +480,40 @@
 					uni.showModal({
 						content: '请输入联系人手机号'
 					});
-				} else if (!vm.identityCardImageA) {
-					uni.showModal({
-						content: '请上传身份证正面'
-					});
-				} else if (!vm.identityCardImageB) {
-					uni.showModal({
-						content: '请上传身份证反面'
-					});
 				} else if (!vm.businessLicenseImage) {
 					uni.showModal({
 						content: '请上传营业执照照片'
 					});
 				} else {
-					vm.shopInfo.identityCardImage = vm.identityCardImageA + ',' + vm.identityCardImageB;
 					vm.shopInfo.businessLicenseImage = vm.businessLicenseImage;
-					const url = vm.apiBaseUrl + '/api-userapp/api/app/businessUser/registerBusinessUser'
+					const url = vm.apiBaseUrl + '/api-good/api/app/shop/updateShop'
 					vm.getToken(() => {
-						vm.shopInfo.userId = vm.userId;
 						uni.request({
 							url: url,
 							data: vm.shopInfo,
+							header: {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
 							method: 'POST',
 							complete(res) {
-								console.log(res);
+								if (res.statusCode === 200 && res.data.status === 2000000) {
+									uni.showModal({
+										content: '保存成功',
+										complete() {
+											uni.navigateBack();
+										}
+									});
+								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+									uni.showModal({
+										title: '保存门店信息',
+										content: res.data.message,
+									});
+								} else {
+									uni.showModal({
+										title: '保存门店信息',
+										content: '请求失败',
+									});
+								}
 							}
 						})
 					});

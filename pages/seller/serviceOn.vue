@@ -11,7 +11,7 @@
 			</view>
 			<mSearch class="search-action" :mode="2" button="inside" :show="false" @search="toSearch($event)"></mSearch>
 		</view>
-		<uni-swipe-action :options="options" v-for="item in services" :key="item.id" @click="toSwiperAction($event, item.id)">
+		<uni-swipe-action :options="options" v-for="(item, index) in services" :key="index" @click="toSwiperAction($event, item.id)">
 			<view class='item'>
 				<view class="item-cover" :style="{'background-image': 'url(' + item.image + ')'}"></view>
 				<view class="item-body">

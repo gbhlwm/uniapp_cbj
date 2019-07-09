@@ -547,7 +547,7 @@
 						if (res.statusCode === 200 && res.data.status === 2000000) {
 							const list = res.data.data;
 							for (let i = 0; i < list.length; i += 1) {
-								const imgs = list[i].shopImage.split(',');
+								const imgs = list[i].shopImage ? list[i].shopImage.split(',') : [''];
 								list[i].cover = imgs[0];
 							}
 							if (vm.currentPage === 1) {

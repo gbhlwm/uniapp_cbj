@@ -52,7 +52,7 @@
 		<view class="block-title">
 			服务套餐
 		</view>
-		<view class="meal-item" v-for="(item, i) in service.meals" :key="i">
+		<view class="meal-item" v-for="(item, i) in service.meals" :key="i" v-if="item.editStatus !== 3">
 			<view class="item-head">
 				<input type="text" v-model="item.name" class="name" placeholder="请输入套餐名称"/>
 				<view class="del" @tap="delMeal(i, item.id)">
@@ -109,7 +109,7 @@
 				shopId: ''
 			}
 		},
-		onLoad() {
+		onLoad(e) {
 			const vm = this;
 			vm.getServiceList();
 			uni.getStorage({
@@ -118,12 +118,48 @@
 					vm.shopId = res.data;
 				}
 			});
+			if (e.serviceId) {
+				vm.getService(e.serviceId);
+			}
 		},
 		onNavigationBarButtonTap() {
 			const vm = this;
 			vm.submitService();
 		},
 		methods: {
+			//获取服务详情
+			getService(serviceId) {
+				const vm = this;
+				const url = vm.apiBaseUrl + '/api-good/api/app/services/findUserServiceDetail';
+				uni.request({
+					method: 'GET',
+					url: url,
+					data: {
+						id: serviceId
+					},
+					complete: (res) => {
+						if (res.statusCode === 200 && res.data.status === 2000000) {
+							const data = res.data.data;
+							for (let i = 0; i < data.meals.length; i +=1 ) {
+								data.meals[i].editStatus = 2;
+							}
+							vm.service = data;
+							// vm.classifyName = vm.serviceList[0].name;
+							// vm.service.classifyId = vm.serviceList[0].id;
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取服务详情',
+								content: res.data.message,
+							});
+						} else {
+							uni.showModal({
+								title: '获取服务详情',
+								content: '请求失败',
+							});
+						}
+					}
+				});
+			},
 			bindPickerChange: function(e) {
 				const vm = this;
 				vm.classsifyIndex = e.target.value;
@@ -205,9 +241,25 @@
 				};
 			},
 			//新增套餐
-			addMeal() {},
+			addMeal() {
+				const vm = this;
+				vm.service.meals.push({
+					editStatus: 1,
+					id: 0,
+					markPrice: "",
+					name: "",
+					sellPrice: ""
+				});
+			},
 			//删除套餐
-			delMeal() {},
+			delMeal(index, mealId) {
+				const vm = this;
+				if (mealId === 0) {
+					vm.service.meals.splice(index, 1);
+				} else {
+					vm.service.meals[index].editStatus = 3;
+				}
+			},
 			submitService() {
 				const vm = this;
 				const checkMealResult = vm.checkMeal();
@@ -253,6 +305,32 @@
 								} else {
 									uni.showModal({
 										title: '新增服务',
+										content: '请求失败',
+									});
+								}
+							}
+						});
+					} else {
+						uni.request({
+							url: vm.apiBaseUrl + '/api-good/api/app/services/updateService',
+							method: 'POST',
+							data: vm.service,
+							complete(res) {
+								if (res.statusCode === 200 && res.data.status === 2000000) {
+									uni.showModal({
+										content: '保存成功',
+										complete() {
+											uni.navigateBack();
+										}
+									});
+								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+									uni.showModal({
+										title: '保存服务',
+										content: res.data.message,
+									});
+								} else {
+									uni.showModal({
+										title: '保存服务',
 										content: '请求失败',
 									});
 								}

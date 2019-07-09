@@ -29,7 +29,7 @@
 		data() {
 			return {
 				shopId: '',
-				userId: '',
+				shopUserId: '',
 				shopInfo: {
 					phone: ''
 				}
@@ -47,11 +47,11 @@
 					} else {
 						vm.shopId = res.data;
 						uni.getStorage({
-							key: 'userId',
+							key: 'shopUserId',
 							complete(res) {
-								vm.userId = res.data;
+								vm.shopUserId = res.data;
 								uni.request({
-									url: vm.apiBaseUrl + '/api-userapp/api/app/businessUser/findAccount?id=' + vm.userId,
+									url: vm.apiBaseUrl + '/api-userapp/api/app/businessUser/findAccount?id=' + vm.shopUserId,
 									method: 'GET',
 									complete(res) {
 										if (res.statusCode === 200 && res.data.status === 2000000) {

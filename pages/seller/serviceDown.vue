@@ -214,10 +214,31 @@
 				} else if (e.index === 0) {
 					//点击编辑
 					uni.navigateTo({
-						url: '../seller/serviceDownEdit?serviceId=' + serviceId
+						url: '../seller/serviceOnEdit?serviceId=' + serviceId
 					});
 				} else {
 					//删除服务
+					uni.request({
+						url: vm.apiBaseUrl + '/api-good/api/app/services/deleteService?id=' + serviceId,
+						method: 'DELETE',
+						complete(res) {
+							if (res.statusCode === 200 && res.data.status === 2000000) {
+								uni.showToast({title: '删除成功'});
+								vm.currentPage = 1;
+								vm.getServices();
+							} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+								uni.showModal({
+									title: '删除服务',
+									content: res.data.message,
+								});
+							} else {
+								uni.showModal({
+									title: '删除服务',
+									content: '请求失败',
+								});
+							}
+						}
+					})
 				}
 			}
 		}
