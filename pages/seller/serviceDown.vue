@@ -212,7 +212,7 @@
 						}
 					})
 				} else if (e.index === 0) {
-					//点解编辑
+					//点击编辑
 					uni.navigateTo({
 						url: '../seller/serviceDownEdit?serviceId=' + serviceId
 					});

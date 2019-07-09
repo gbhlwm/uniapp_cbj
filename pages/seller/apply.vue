@@ -59,15 +59,17 @@
 			</view>
 		</view>
 		<view class="block-option">
+			<picker class="area-picker" :value="attrIndex" @change="bindAttrChange" :range="attrArr" range-key="name"></picker>
 			<view class="option-title">门店属性</view>
-			<input v-model="attributeName" class="option-value" placeholder="门店属性">
+			<input v-model="attributeName" class="option-value" placeholder="门店属性" disabled="true">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
 		</view>
 		<view class="block-option">
+			<picker class="area-picker" :value="qualIndex" @change="bindQualChange" :range="qualArr" range-key="name"></picker>
 			<view class="option-title">门店资质</view>
-			<input v-model="qualificationName" class="option-value" placeholder="门店资质">
+			<input v-model="qualificationName" class="option-value" placeholder="门店资质" disabled="true">
 			<view class="option-btn">
 				<image src="../../static/common_nav_ic_more.png" mode=""></image>
 			</view>
@@ -177,7 +179,19 @@
 				identityCardImageB:'',
 				shopClassify: '',
 				shopAddress: '',
-				attributeName: '独立自营' ,
+				attributeName: '独立自营',
+				attrIndex: 0,
+				attrArr: [
+					{name: '独立自营', attrId: 1},
+					{name: '连锁直营', attrId: 2},
+					{name: '连锁加盟', attrId: 3}
+				],
+				qualIndex: 0,
+				qualArr: [
+					{name: '一类', qualId: 1},
+					{name: '二类', qualId: 2},
+					{name: '三类', qualId: 3}
+				],
 				qualificationName: '一类'
 			}
 		},
@@ -264,6 +278,18 @@
 				vm.classifyIndex = e.target.value;
 				vm.shopInfo.shopClassifyId = vm.classList[vm.classifyIndex].id;
 				vm.shopClassify = vm.classList[vm.classifyIndex].name;
+			},
+			bindAttrChange: function(e) {
+				const vm = this;
+				vm.attrIndex = e.target.value;
+				vm.shopInfo.attribute = vm.attrArr[vm.attrIndex].attrId;
+				vm.attributeName = vm.attrArr[vm.attrIndex].name;
+			},
+			bindQualChange: function(e) {
+				const vm = this;
+				vm.qualIndex = e.target.value;
+				vm.shopInfo.qualification = vm.qualArr[vm.qualIndex].qualId;
+				vm.qualificationName = vm.qualArr[vm.qualIndex].name;
 			},
 			bindPickerChange: function(e) {
 				const vm = this;

@@ -61,6 +61,9 @@
 			}
 		},
 		onLoad() {
+			
+		},
+		onShow() {
 			const vm = this;
 			uni.getStorage({
 				key: 'shopId',
