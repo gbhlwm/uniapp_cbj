@@ -231,6 +231,7 @@
 				}
 				vm.city = city;
 				vm.cityId = cityId;
+				vm.currentPage = 1;
 				vm.getAreas(vm.getShops);
 				this.cityShow = false;
 			},
@@ -306,9 +307,12 @@
 							vm.latitude = res.latitude;
 							vm.longitude = res.longitude;
 							vm.getCityId(vm.city, (res) => {
+								uni.showToast({
+									title: 'city:' + vm.city + 'c1:' + res.statusCode + 'c2:' + res.data.status
+								});
 								if (res.statusCode === 200 && res.data.status === 2000000) {
 									vm.cityId = res.data.data.id;
-									vm.getAreas(vm.getShops);
+									vm.getAreas(vm.getShops());
 								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
 									uni.showModal({
 										title: '获取城市',
