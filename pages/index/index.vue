@@ -482,7 +482,7 @@
 			//根据城市名获取城市id
 			getCityId(cityName, callback = () => {}) {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findCityByName?name=' + cityName;
+				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findCityByName?name=' + encodeURIComponent(cityName);
 				uni.request({
 					url: url,
 					complete: (res) => {
