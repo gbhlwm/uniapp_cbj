@@ -208,20 +208,19 @@
 		onPullDownRefresh() {
 			const vm = this;
 			vm.currentPage = 1;
-			vm.getPosition();
+			vm.getPosition(true);
 			uni.stopPullDownRefresh();
 		},
 		//上拉加载，需要自己在page.json文件中配置"onReachBottomDistance"
 		onReachBottom(){
 			const vm = this;
 			vm.currentPage += 1
-			vm.getPosition();
+			vm.getPosition(true);
 		},
 		methods: {
 			//选择城市
 			cityClick(option) {
 				const vm = this;
-				console.log(option);
 				const city = option.item.name;
 				let cityId = 0;
 				for (let i = 0; i < vm.citys.length; i++) {
@@ -297,7 +296,10 @@
 				});
 			},
 			//获取定位
-			getPosition() {
+			/**
+			 * @param {Object} hasCity false:第一次进入页面获取定位,选择城市 true选择地区
+			 */
+			getPosition(hasCity) {
 				const vm = this;
 				uni.getLocation({
 					geocode: true,
@@ -306,28 +308,28 @@
 							vm.city = res.address.city;
 							vm.latitude = res.latitude;
 							vm.longitude = res.longitude;
-							vm.getCityId(vm.city, (res) => {
-								uni.showModal({
-									title: 'city:' + vm.city,
-									content: 'c1:' + res.statusCode + 'c2:' + res.data.status
+							if (!hasCity) {
+								vm.getCityId(vm.city, (res) => {
+									if (res.statusCode === 200 && res.data.status === 2000000) {
+										vm.cityId = res.data.data.id;
+										vm.getAreas(vm.getShops());
+									} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+										uni.showModal({
+											title: '获取城市',
+											content: res.data.message,
+										});
+										vm.getShops();
+									} else {
+										uni.showModal({
+											title: '获取城市请求',
+											content: '失败',
+										});
+										vm.getShops();
+									}
 								});
-								if (res.statusCode === 200 && res.data.status === 2000000) {
-									vm.cityId = res.data.data.id;
-									vm.getAreas(vm.getShops());
-								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-									uni.showModal({
-										title: '获取城市',
-										content: res.data.message,
-									});
-									vm.getShops();
-								} else {
-									uni.showModal({
-										title: '获取城市请求',
-										content: '失败',
-									});
-									vm.getShops();
-								}
-							});
+							} else {
+								vm.getShops();
+							}
 						} else {
 							// uni.showModal({
 							// 	title: '获取定位',
@@ -351,7 +353,7 @@
 				vm.attribute = '';
 				vm.shopClassifyId = '';
 				vm.currentPage = 1;
-				vm.getPosition();
+				vm.getPosition(true);
 				vm.queryListShow = false;
 			},
 			//筛选条件显示
@@ -382,7 +384,7 @@
 				const vm = this;
 				vm.serviceClassifyId = serviceId;
 				vm.currentPage = 1;
-				vm.getPosition();
+				vm.getPosition(true);
 				vm.serviceListShow = false;
 			},
 			//选择城区
@@ -391,7 +393,7 @@
 				vm.areaId = areaId;
 				vm.area = areaName;
 				vm.currentPage = 1;
-				vm.getPosition();
+				vm.getPosition(true);
 				vm.areaListShow = false;
 			},
 			//选择排序
