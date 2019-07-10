@@ -307,8 +307,9 @@
 							vm.latitude = res.latitude;
 							vm.longitude = res.longitude;
 							vm.getCityId(vm.city, (res) => {
-								uni.showToast({
-									title: 'city:' + vm.city + 'c1:' + res.statusCode + 'c2:' + res.data.status
+								uni.showModal({
+									title: 'city:' + vm.city,
+									content: 'c1:' + res.statusCode + 'c2:' + res.data.status
 								});
 								if (res.statusCode === 200 && res.data.status === 2000000) {
 									vm.cityId = res.data.data.id;
