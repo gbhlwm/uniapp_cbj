@@ -120,8 +120,8 @@
 								uni.showModal({
 									content: '下单成功',
 									complete() {
-										uni.reLaunch({
-											url: '../index/index'
+										uni.navigateTo({
+											url: '../index/orderPay?orderId=' + res.data.data.id + '&orderPrice=' + res.data.data.totalFee
 										});
 									}
 								});

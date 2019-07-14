@@ -54,7 +54,7 @@
 				</view>
 				<view>3.0</view>
 			</view>
-			<view class="more" @tap="toAll(1)">999条评价    ></view>
+			<view class="more" @tap="toAll(1)">{{serviceDetail.comments.length}}条评价    ></view>
 		</view>
 		<view class="commands">
 			<view class="command">
@@ -88,7 +88,7 @@
 			</view>
 			<view class="action" @tap="popupShow = true">立即购买</view>
 		</view>
-		<uni-popup :show="popupShow" h5-top="true" position="bottom" mode="fixed">
+		<uni-popup :show="popupShow" :h5Top="h5Top" position="bottom" mode="fixed">
 			<view class="service-select">
 				<image @tap="popupShow = false" class="btn-close" src="../../static/icon_search.png"></image>
 				<view class="info">
@@ -125,9 +125,12 @@
 		components: {uniPopup},
 		data() {
 			return {
+				h5Top: true,
 				currentSwiper: 0,
 				serviceId: '',
-				serviceDetail: {},
+				serviceDetail: {
+					comments: []
+				},
 				latitude: '23.13559',
 				longitude: '113.335367',
 				popupShow: false,
@@ -139,6 +142,7 @@
 					maxPrice: '',
 					minPrice: 100
 				},
+				mealId: '',
 				buyNumber: 1,
 				mealList: []
 			}

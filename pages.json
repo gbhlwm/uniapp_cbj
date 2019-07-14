@@ -86,10 +86,7 @@
         }, {
             "path" : "pages/index/orderAfterAdd",//客户端我的售后申请页 对应原型模块A2-7-1
             "style": {
-            	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
-            	}
+            	"navigationBarTitleText": "售后申请"
             }
         }, {
             "path" : "pages/index/orderAfterHistory",//客户端我的售后协商历史页 对应原型模块A2-7-3

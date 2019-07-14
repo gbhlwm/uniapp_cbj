@@ -16,14 +16,21 @@
 	export default {
 		data() {
 			return {
-				status: true
+				status: true,
+				orderId: ''
 			}
+		},
+		onLoad(e) {
+			const vm = this;
+			vm.status = e.result;
+			vm.orderId = e.orderId;
 		},
 		methods: {
 			//跳转订单页面
 			toOrders() {
+				const vm = this;
 				uni.reLaunch({
-					url: '../index/orders'
+					url: '../index/orders?orderId=' + vm.orderId
 				});
 			},
 			//跳转门店列表页面

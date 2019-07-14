@@ -65,6 +65,7 @@ Vue.prototype.getToken = (callBack = () => {}) => {
 							Vue.prototype.userId = res.data.data.id;
 							Vue.prototype.userNickName = res.data.data.nickname;
 							Vue.prototype.account = res.data.data.account;
+							Vue.prototype.userData = res.data.data;
 							callBack();
 						}
 					}

@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="block">
-			<view>需支付 <view class="price">￥2000.00</view></view>
+			<view>需支付 <view class="price">￥{{orderPrice}}</view></view>
 		</view>
 		<view class="block type">
 			选择支付方式
@@ -17,7 +17,7 @@
 			<image v-if="payType === 2" src="../../static/common_ic_choice_big_s.png"></image>
 		</view>
 		<view class="block" @tap="choosePayType(3)">
-			余额（￥1000.00）
+			余额（￥{{user.balance}}）
 			<image v-if="payType !== 3" src="../../static/common_ic_choice_big_n.png"></image>
 			<image v-if="payType === 3" src="../../static/common_ic_choice_big_s.png"></image>
 		</view>
@@ -31,8 +31,17 @@
 	export default {
 		data() {
 			return {
-				payType: 1
+				payType: 1,
+				user: {}
 			}
+		},
+		onLoad(e) {
+			const vm = this;
+			vm.orderId = e.orderId;
+			vm.orderPrice = e.orderPrice;
+			vm.getToken(() => {
+				vm.user = vm.userData;
+			});
 		},
 		methods: {
 			//选择支付方式
@@ -41,9 +50,43 @@
 			},
 			//跳转支付结果页面
 			toPayResult() {
-				uni.navigateTo({
-					url: '../index/orderPayResult'
-				});
+				const vm = this;
+				if (vm.payType === 1) {
+					
+				} else if (vm.payType === 2) {
+					
+				} else {
+					vm.getToken(() => {
+						uni.request({
+							url: vm.apiBaseUrl + '/api-order/api/app/order/payOrder.json',
+							method: 'POST',
+							header: {
+								"Content-Type": "application/x-www-form-urlencoded"
+							},
+							data: {
+								token: vm.token,
+								id: vm.orderId,
+								payType: vm.payType
+							},
+							complete(res) {
+								if (res.statusCode === 200 && res.data.status === 2000000) {
+									uni.reLaunch({
+										url: '../index/orderPayResult?result=1'
+									});
+								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+									uni.navigateTo({
+										url: '../index/orderPayResult?result=0'
+									});
+								} else {
+									uni.showModal({
+										title: '发起支付',
+										content: '请求失败',
+									});
+								}
+							}
+						})
+					});
+				}
 			}
 		}
 	}

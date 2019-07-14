@@ -5,14 +5,14 @@
 				{{item.name}}
 			</view>
 		</view>
-		<view class="info" v-for="item in orders" :key="item.id" @tap="toDetail(item.id)">
+		<view class="info" v-for="item in orders" :key="item.id">
 			<view class="block">
 				<view class="shop-title">
 					<image class="shop-img" src="../../static/common_tab_ic_shop_s.png"></image>
 					<view>{{item.shopName}}</view>
 				</view>
 			</view>
-			<view class="item-body">
+			<view class="item-body" @tap="toDetail(item.id)">
 				<view class="cover" :style="{'background-image': 'url(' + item.image + ')'}"></view>
 				<view class="name">{{item.serviceName}}</view>
 				<view class="label">{{item.mealName}}</view>
@@ -26,14 +26,17 @@
 					<view class="title">共{{item.number}}件商品  总计：</view>
 					<view class="value">${{item.total}}</view>
 				</view>
-				<view class="action active" v-if="item.status === 1">
+				<view class="action active" v-if="item.status === 1" @tap="cancelOrder(item.id)">
 					取消订单
 				</view>
-				<view class="action" v-if="item.status === 1">
+				<view class="action" v-if="item.status === 1" @tap="toOrderPay(item.id, item.total)">
 					立即支付
 				</view>
-				<view class="action" v-if="item.status === 3">
+				<view class="action" v-if="item.status === 3" @tap="toAddCommon(item.id)">
 					评价
+				</view>
+				<view class="action" v-if="item.status === 4" @tap="toAddAfter(item.id)">
+					申请售后
 				</view>
 			</view>
 		</view>
@@ -71,6 +74,55 @@
 			vm.getOrders();
 		},
 		methods: {
+			//取消订单
+			cancelOrder(orderId) {
+				const vm = this;
+				uni.showModal({
+					content: '确认取消此订单',
+					success(res) {
+						if (res.comfirm) {
+							uni.request({
+								url: vm.apiBaseUrl + '/api-order/api/app/order/cancelOrder',
+								method: "PUT",
+								data: {
+									id: orderId
+								},
+								complete(res) {
+									if (res.statusCode === 200 && res.data.status === 2000000) {
+										uni.showToast({
+											title: '取消成功'
+										});
+									} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+										uni.showModal({
+											title: '取消订单',
+											content: res.data.message,
+										});
+									} else {
+										uni.showModal({
+											title: '取消订单',
+											content: '请求失败',
+										});
+									}
+								}
+							});
+						}
+					}
+				})
+			},
+			//跳转申请售后
+			toAddAfter(orderId) {
+				const vm = this;
+				uni.navigateTo({
+					url: '../index/orderAfterAdd?orderId=' + orderId
+				});
+			},
+			//跳转订单支付
+			toOrderPay(orderId, orderPrice) {
+				const vm = this;
+				uni.navigateTo({
+					url: '../index/orderPay?orderId=' + orderId + '&orderPrice=' + orderPrice
+				});
+			},
 			//跳转订单详情
 			toDetail(orderId) {
 				const vm = this;

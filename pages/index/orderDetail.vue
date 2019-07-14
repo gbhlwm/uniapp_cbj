@@ -77,14 +77,31 @@
 				</view>
 			</view>
 		</view>
+		<view class="block-qr" v-show="order.status === 2">
+			<view class="title">
+				向门店出示二维码即可享受服务
+			</view>
+			<view class="qrimg">
+				<tki-qrcode
+				ref="qrcode"
+				:size="qrSize"
+				:onval="onval"
+				:val="qrVal"/>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
+	import tkiQrcode from "@/components/tki-qrcode/tki-qrcode.vue"
 	export default {
+		components: {tkiQrcode},
 		data() {
 			return {
-				order: {}
+				order: {},
+				qrVal: '',
+				onval: true,
+				qrSize: 296
 			}
 		},
 		onLoad(e) {
@@ -100,15 +117,18 @@
 					complete(res) {
 						if (res.statusCode === 200 && res.data.status === 2000000) {
 							vm.order = res.data.data;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							if (res.data.status === 5000001 && vm.currentPage === 1) {
-								vm.orders = [];
-							} else {
-								uni.showModal({
-									title: '获取服务订单详情',
-									content: res.data.message,
-								});
+							if (vm.order.status === 2) {
+								const qrVal = {
+									orderSn: vm.order.orderSn,
+									shopId: vm.order.shopId
+								}
+								vm.qrVal = JSON.stringify(qrVal);
 							}
+						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+							uni.showModal({
+								title: '获取服务订单详情',
+								content: res.data.message,
+							});
 						} else {
 							uni.showModal({
 								title: '获取服务订单详情',
@@ -213,6 +233,12 @@
 					border: 1px solid rgba(51,51,51,1); border-radius: 24upx;
 				}
 			}
+		}
+	}
+	.block-qr {
+		text-align: center; font-size: 26upx; margin-top: 38upx;
+		.qrimg {
+			margin-top: -220upx; margin-bottom: 48upx;
 		}
 	}
 </style>
