@@ -39,6 +39,7 @@
 </template>
 
 <script>
+	import {apiUserRegisterBusinessUser} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -109,15 +110,6 @@
 				} else {
 					if (vm.codeTitle === '发送验证码') {
 						const url = vm.serviceBaseUrl + '/uaa/api/comsumer/sendRegistryMessage?account=' + vm.phone;
-						// vm.codeTitle = 60;
-						// const timer = setInterval(() => {
-						// 	if (vm.codeTitle > 1) {
-						// 		vm.codeTitle -= 1;
-						// 	} else {
-						// 		vm.codeTitle = '发送验证码';
-						// 		clearInterval(timer);
-						// 	}
-						// }, 1000)
 						uni.request({
 							url: url,
 							method: 'POST',
@@ -185,43 +177,30 @@
 									vm.shopInfo.password = vm.password;
 									vm.shopInfo.phone = vm.phone;
 									vm.shopInfo.nickname = vm.userNickName;
-									uni.request({
-										url: url,
-										data: vm.shopInfo,
-										header: {
-											"Content-Type": "application/x-www-form-urlencoded"
-										},
-										method: 'POST',
-										complete: (res) => {
-											if (res.statusCode === 200 && res.data.status === 2000000) {
-												uni.showModal({
-													title: '商家入驻申请',
-													content: '成功',
-													complete(res) {
-														uni.request({
-															url: vm.serviceBaseUrl + '/uaa/api/ut-consumers/delRegistryMessage?tel=' + vm.phone,
-															method: 'POST',
-															complete(res) {
-																uni.navigateTo({
-																	url: '../seller/login'
-																});
-															}
-														})
-													}
-												});
-											} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-												uni.showModal({
-													title: '商家入驻申请',
-													content: res.data.message,
-												});
-											} else {
-												uni.showModal({
-													title: '商家入驻申请',
-													content: '请求失败',
-												});
-											}
+									apiUserRegisterBusinessUser(vm.shopInfo).then(res => {
+										if (res.data.status === 2000000) {
+											uni.showModal({
+												title: '商家入驻申请',
+												content: '成功',
+												complete(res) {
+													uni.request({
+														url: vm.serviceBaseUrl + '/uaa/api/ut-consumers/delRegistryMessage?tel=' + vm.phone,
+														method: 'POST',
+														complete(res) {
+															uni.navigateTo({
+																url: '../seller/login'
+															});
+														}
+													})
+												}
+											});
+										} else {
+											uni.showModal({
+												title: '商家入驻申请',
+												content: res.data.message,
+											});
 										}
-									})
+									});
 								});
 							} else if (res.statusCode === 200 && res.data.status !== 2000000) {
 								uni.showModal({

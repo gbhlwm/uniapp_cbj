@@ -81,6 +81,7 @@
 </template>
 
 <script>
+	import {apiGoodFindUserServiceDetail, apiGoodReturnServiceClassify, apiGoodSaveService, apiGoodUpdateService} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -131,32 +132,20 @@
 			getService(serviceId) {
 				const vm = this;
 				const url = vm.apiBaseUrl + '/api-good/api/app/services/findUserServiceDetail';
-				uni.request({
-					method: 'GET',
-					url: url,
-					data: {
-						id: serviceId
-					},
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const data = res.data.data;
-							for (let i = 0; i < data.meals.length; i +=1 ) {
-								data.meals[i].editStatus = 2;
-							}
-							vm.service = data;
-							// vm.classifyName = vm.serviceList[0].name;
-							// vm.service.classifyId = vm.serviceList[0].id;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取服务详情',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取服务详情',
-								content: '请求失败',
-							});
+				apiGoodFindUserServiceDetail({id: serviceId}).then(res => {
+					if (res.data.status === 2000000) {
+						const data = res.data.data;
+						for (let i = 0; i < data.meals.length; i +=1 ) {
+							data.meals[i].editStatus = 2;
 						}
+						vm.service = data;
+						// vm.classifyName = vm.serviceList[0].name;
+						// vm.service.classifyId = vm.serviceList[0].id;
+					} else {
+						uni.showModal({
+							title: '获取服务详情',
+							content: res.data.message,
+						});
 					}
 				});
 			},
@@ -170,25 +159,16 @@
 			getServiceList() {
 				const vm = this;
 				const url = vm.apiBaseUrl + '/api-good/api/app/shop/returnServiceClassify';
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.serviceList = res.data.data;
-							vm.classifyName = vm.serviceList[0].name;
-							vm.service.classifyId = vm.serviceList[0].id;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取服务分类',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取服务分类',
-								content: '请求失败',
-							});
-						}
+				apiGoodReturnServiceClassify().then(res => {
+					if (res.data.status === 2000000) {
+						vm.serviceList = res.data.data;
+						vm.classifyName = vm.serviceList[0].name;
+						vm.service.classifyId = vm.serviceList[0].id;
+					} else {
+						uni.showModal({
+							title: '获取服务分类',
+							content: res.data.message,
+						});
 					}
 				});
 			},
@@ -285,55 +265,35 @@
 					});
 				} else {
 					if (!vm.service.id) {
-						uni.request({
-							url: vm.apiBaseUrl + '/api-good/api/app/services/saveService?shopId=' + vm.shopId,
-							method: 'PUT',
-							data: vm.service,
-							complete(res) {
-								if (res.statusCode === 200 && res.data.status === 2000000) {
-									uni.showModal({
-										content: '保存成功',
-										complete() {
-											uni.navigateBack();
-										}
-									});
-								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-									uni.showModal({
-										title: '新增服务',
-										content: res.data.message,
-									});
-								} else {
-									uni.showModal({
-										title: '新增服务',
-										content: '请求失败',
-									});
-								}
+						apiGoodSaveService(shopId, vm.service).then(res => {
+							if (res.data.status === 2000000) {
+								uni.showModal({
+									content: '保存成功',
+									complete() {
+										uni.navigateBack();
+									}
+								});
+							} else {
+								uni.showModal({
+									title: '新增服务',
+									content: res.data.message,
+								});
 							}
 						});
 					} else {
-						uni.request({
-							url: vm.apiBaseUrl + '/api-good/api/app/services/updateService',
-							method: 'POST',
-							data: vm.service,
-							complete(res) {
-								if (res.statusCode === 200 && res.data.status === 2000000) {
-									uni.showModal({
-										content: '保存成功',
-										complete() {
-											uni.navigateBack();
-										}
-									});
-								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-									uni.showModal({
-										title: '保存服务',
-										content: res.data.message,
-									});
-								} else {
-									uni.showModal({
-										title: '保存服务',
-										content: '请求失败',
-									});
-								}
+						apiGoodUpdateService(vm.service).then(res => {
+							if (res.data.status === 2000000) {
+								uni.showModal({
+									content: '保存成功',
+									complete() {
+										uni.navigateBack();
+									}
+								});
+							} else {
+								uni.showModal({
+									title: '保存服务',
+									content: res.data.message,
+								});
 							}
 						});
 					}

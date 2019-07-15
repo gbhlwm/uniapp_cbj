@@ -6,6 +6,7 @@
 </template>
 
 <script>
+	import {apiUserFindUserAgreement} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -14,24 +15,15 @@
 		},
 		onLoad() {
 			const vm = this;
-			uni.request({
-				url: vm.apiBaseUrl + '/api-userapp/api/app/businessUser/findUserAgreement',
-				method: 'GET',
-				complete(res) {
-					if (res.statusCode === 200 && res.data.status === 2000000) {
-						vm.agreement = res.data.data.details;
-						vm.title = res.data.data.title;
-					} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-						uni.showModal({
-							title: '获取用户协议',
-							content: res.data.msg,
-						});
-					} else {
-						uni.showModal({
-							title: '获取用户协议',
-							content: '请求失败',
-						});
-					}
+			apiUserFindUserAgreement().then(res => {
+				if (res.data.status === 2000000) {
+					vm.agreement = res.data.data.details;
+					vm.title = res.data.data.title;
+				} else {
+					uni.showModal({
+						title: '获取用户协议',
+						content: res.data.msg,
+					});
 				}
 			})
 		},

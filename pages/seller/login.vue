@@ -25,6 +25,7 @@
 </template>
 
 <script>
+	import {apiUserappLoginBusinessUser} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -58,38 +59,34 @@
 					});
 				} else {
 					vm.getToken(() => {
-						uni.request({
-							url: vm.apiBaseUrl + '/api-userapp/api/app/businessUser/loginBusinessUser?id=' + vm.userId + '&phone=' + vm.phone + '&password=' + vm.password,
-							method: 'GET',
-							complete(res) {
-								if (res.statusCode === 200 && res.data.status === 2000000) {
-									uni.setStorage({
-										key: 'shopUserId',
-										data: res.data.data,
-										complete() {
-											uni.showModal({
-												content: '登录成功',
-												complete() {
-													uni.reLaunch({
-														url: '../seller/sellerCenter'
-													});
-												}
-											});
-										}
-									});
-								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-									uni.showModal({
-										title: '登录失败',
-										content: res.data.message,
-									});
-								} else {
-									uni.showModal({
-										title: '登录失败',
-										content: '请求失败',
-									});
-								}
+						const data = {
+							id: vm.userId,
+							phone: vm.phone,
+							password: vm.password
+						};
+						apiUserappLoginBusinessUser(data).then(res => {
+							if (res.data.status === 2000000) {
+								uni.setStorage({
+									key: 'shopUserId',
+									data: res.data.data,
+									complete() {
+										uni.showModal({
+											content: '登录成功',
+											complete() {
+												uni.reLaunch({
+													url: '../seller/sellerCenter'
+												});
+											}
+										});
+									}
+								});
+							} else {
+								uni.showModal({
+									title: '登录失败',
+									content: res.data.message,
+								});
 							}
-						})
+						});
 					});
 				}
 			},
@@ -116,12 +113,12 @@
 	}
 	.input-option {
 		height: 98upx; display: flex; align-items: center; width: 610upx;
-		margin: auto; border-bottom: 1px solid #DEDEDE;
+		margin: auto; border-bottom: 1px solid #DEDEDE; justify-content: space-between;
 		.option-title {
 			width: 100upx; font-size: 28upx; color: #131319;
 		}
 		.option-value {
-			color: #C6C6C6; size: 28upx;
+			color: #C6C6C6; font-size: 28upx; width: 500upx;
 		}
 	}
 	.actions {

@@ -93,6 +93,7 @@
 </template>
 
 <script>
+	import {apiOrderViewOrder} from '../../api.js'
 	import tkiQrcode from "@/components/tki-qrcode/tki-qrcode.vue"
 	export default {
 		components: {tkiQrcode},
@@ -107,34 +108,21 @@
 		onLoad(e) {
 			const vm = this;
 			vm.getToken(() => {
-				uni.request({
-					url: vm.apiBaseUrl + '/api-order/api/app/order/viewOrder',
-					method: 'GET',
-					data: {
-						id: e.orderId,
-						userId: vm.userId
-					},
-					complete(res) {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.order = res.data.data;
-							if (vm.order.status === 2) {
-								const qrVal = {
-									orderSn: vm.order.orderSn,
-									shopId: vm.order.shopId
-								}
-								vm.qrVal = JSON.stringify(qrVal);
+				apiOrderViewOrder({id: e.orderId, userId: vm.userId}).then(res => {
+					if (res.data.status === 2000000) {
+						vm.order = res.data.data;
+						if (vm.order.status === 2) {
+							const qrVal = {
+								orderId: vm.order.id,
+								shopId: vm.order.shopId
 							}
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取服务订单详情',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取服务订单详情',
-								content: '请求失败',
-							});
+							vm.qrVal = JSON.stringify(qrVal);
 						}
+					} else {
+						uni.showModal({
+							title: '获取服务订单详情',
+							content: res.data.message,
+						});
 					}
 				})
 			})

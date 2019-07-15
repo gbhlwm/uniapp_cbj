@@ -129,6 +129,7 @@
 </template>
 
 <script>
+	import {apiGoodFindAllCityDetail, apiGoodFindCityByName, apiGoodFindAllCity, apiGoodReturnShopClassify} from '../../api.js'
 	import uniIndexedList from "@/components/uni-indexed-list/uni-indexed-list.vue"
 	export default {
 		components: {uniIndexedList},
@@ -206,26 +207,16 @@
 			//获取服务认证列表
 			getClassList() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/returnShopClassify';
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.classList = res.data.data;
-							vm.shopClassify = vm.classList[0].name;
-							vm.shopInfo.shopClassifyId = vm.classList[0].id;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取服务认证',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取服务认证',
-								content: '请求失败',
-							});
-						}
+				apiGoodReturnShopClassify().then(res => {
+					if (res.data.status === 2000000) {
+						vm.classList = res.data.data;
+						vm.shopClassify = vm.classList[0].name;
+						vm.shopInfo.shopClassifyId = vm.classList[0].id;
+					} else {
+						uni.showModal({
+							title: '获取服务认证',
+							content: res.data.message,
+						});
 					}
 				});
 			},
@@ -300,27 +291,18 @@
 			//获取城市下城区列表
 			getAreas(callBack = () => {}) {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCityDetail?parentId=' + vm.cityId;
-				uni.request({
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.areas = res.data.data;
-							vm.area = vm.areas[0].name
-							vm.shopInfo.addressId = vm.areas[0].id
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取城区',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取城区',
-								content: '请求失败',
-							});
-						}
+				apiGoodFindAllCityDetail({parentId: vm.cityId}).then(res => {
+					if (res.data.status === 2000000) {
+						vm.areas = res.data.data;
+						vm.area = vm.areas[0].name
+						vm.shopInfo.addressId = vm.areas[0].id
+					} else {
+						uni.showModal({
+							title: '获取城区',
+							content: res.data.message,
+						});
 					}
-				})
+				});
 			},
 			//选择城市
 			cityClick(option) {
@@ -341,61 +323,51 @@
 			// 获取所有城市
 			getAllCity() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCity';
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const list = res.data.data;
-							const arr = [
-								{letter: 'A', data: []},
-								{letter: 'B', data: []},
-								{letter: 'C', data: []},
-								{letter: 'D', data: []},
-								{letter: 'E', data: []},
-								{letter: 'F', data: []},
-								{letter: 'G', data: []},
-								{letter: 'H', data: []},
-								{letter: 'I', data: []},
-								{letter: 'J', data: []},
-								{letter: 'K', data: []},
-								{letter: 'L', data: []},
-								{letter: 'M', data: []},
-								{letter: 'N', data: []},
-								{letter: 'O', data: []},
-								{letter: 'P', data: []},
-								{letter: 'Q', data: []},
-								{letter: 'R', data: []},
-								{letter: 'S', data: []},
-								{letter: 'T', data: []},
-								{letter: 'U', data: []},
-								{letter: 'V', data: []},
-								{letter: 'W', data: []},
-								{letter: 'X', data: []},
-								{letter: 'Y', data: []},
-								{letter: 'Z', data: []}
-							];
-							for (let i = 0; i < list.length; i++) {
-								for (let j = 0; j < arr.length; j++) {
-									if (list[i].initials === arr[j].letter) {
-										arr[j].data.push(list[i].name);
-									}
+				apiGoodFindAllCity().then(res => {
+					if (res.data.status === 2000000) {
+						const list = res.data.data;
+						const arr = [
+							{letter: 'A', data: []},
+							{letter: 'B', data: []},
+							{letter: 'C', data: []},
+							{letter: 'D', data: []},
+							{letter: 'E', data: []},
+							{letter: 'F', data: []},
+							{letter: 'G', data: []},
+							{letter: 'H', data: []},
+							{letter: 'I', data: []},
+							{letter: 'J', data: []},
+							{letter: 'K', data: []},
+							{letter: 'L', data: []},
+							{letter: 'M', data: []},
+							{letter: 'N', data: []},
+							{letter: 'O', data: []},
+							{letter: 'P', data: []},
+							{letter: 'Q', data: []},
+							{letter: 'R', data: []},
+							{letter: 'S', data: []},
+							{letter: 'T', data: []},
+							{letter: 'U', data: []},
+							{letter: 'V', data: []},
+							{letter: 'W', data: []},
+							{letter: 'X', data: []},
+							{letter: 'Y', data: []},
+							{letter: 'Z', data: []}
+						];
+						for (let i = 0; i < list.length; i++) {
+							for (let j = 0; j < arr.length; j++) {
+								if (list[i].initials === arr[j].letter) {
+									arr[j].data.push(list[i].name);
 								}
 							}
-							vm.cityList = arr;
-							vm.citys = list;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取城市列表',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取城市列表',
-								content: '请求失败',
-							});
 						}
+						vm.cityList = arr;
+						vm.citys = list;
+					} else {
+						uni.showModal({
+							title: '获取城市列表',
+							content: res.data.message,
+						});
 					}
 				});
 			},
@@ -504,18 +476,6 @@
 					uni.navigateTo({
 						url: '../seller/applyPassword?shopInfo=' + JSON.stringify(vm.shopInfo)
 					});
-					// const url = vm.apiBaseUrl + '/api-userapp/api/app/businessUser/registerBusinessUser'
-					// vm.getToken(() => {
-					// 	vm.shopInfo.userId = vm.userId;
-					// 	uni.request({
-					// 		url: url,
-					// 		data: vm.shopInfo,
-					// 		method: 'POST',
-					// 		complete(res) {
-					// 			console.log(res);
-					// 		}
-					// 	})
-					// });
 				}
 			}
 		}
@@ -524,7 +484,7 @@
 
 <style lang="less" scoped>
 	.uni-indexed {
-		position: fixed; top: 0; bottom: 0; left: 0; right: 0; overflow: scroll; background: white;
+		position: absolute; top: 0; bottom: 0; left: 0; right: 0; overflow: scroll; background: white;
 		z-index: 99;
 	}
 	.page-apply {

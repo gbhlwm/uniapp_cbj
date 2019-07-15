@@ -1,22 +1,24 @@
 <template>
 	<view>
 		<view class="status" v-if="from === 'scan'">待使用</view>
-		<view class="status" v-if="from !== 'scan'">待核销</view>
-		<view class="status" v-if="from !== 'scan'">已核销</view>
-		<view class="status" v-if="from !== 'scan'">已取消</view>
+		<view class="status" v-if="from !== 'scan' && order.status === 1">待付款</view>
+		<view class="status" v-if="from !== 'scan' && order.status === 2">待核销</view>
+		<view class="status" v-if="from !== 'scan' && order.status === 3">已核销</view>
+		<view class="status" v-if="from !== 'scan' && order.status === 4">已完成</view>
+		<view class="status" v-if="from !== 'scan' && order.status === 5">已取消</view>
 		<view class="block-info">
 			<view class="info-shop">
 				<image src="../../static/ic_store.png"></image>
-				车便捷旗舰店
+				{{order.shopName}}
 			</view>
 			<view class="info-content">
-				<view class="service-cover"></view>
+				<view class="service-cover" :style="{'background-image': 'url(' + order.image + ')'}"></view>
 				<view class="service-detail">
-					<view class="title">车便捷旗舰店 广州中山路201号旗舰店10元起洗车保养服务...</view>
-					<view class="service-label">标准养护</view>
+					<view class="title">{{order.mealName}}</view>
+					<view class="service-label">{{order.serviceName}}</view>
 					<view class="eval">
-						<view class="price">$88</view>
-						<view class="number">x1</view>
+						<view class="price">${{order.price}}</view>
+						<view class="number">x{{order.number}}</view>
 					</view>
 				</view>
 			</view>
@@ -24,7 +26,7 @@
 		<view class="block-eval">
 			<view class="item">
 				<view class="title">商品总价</view>
-				<view class="price">$88</view>
+				<view class="price">${{order.totalPrice}}</view>
 			</view>
 			<!-- <view class="item">
 				<view class="title">优惠金额</view>
@@ -32,7 +34,7 @@
 			</view> -->
 			<view class="item">
 				<view class="title">总计</view>
-				<view class="price active">$88</view>
+				<view class="price active">${{order.totalFee}}</view>
 			</view>
 		</view>
 		<view class="block-order">
@@ -42,57 +44,111 @@
 			</view>
 			<view class="item">
 				<view class="item-title">用户昵称：</view>
-				<view class="item-value">用户昵称</view>
+				<view class="item-value">{{order.totalFee}}</view>
 				<view class="item-action">
 					<!-- <view class="btn-copy">复制</view> -->
 				</view>
 			</view>
 			<view class="item">
 				<view class="item-title">用户手机号：</view>
-				<view class="item-value">1502444456</view>
+				<view class="item-value">{{order.userPhone}}</view>
 				<view class="item-action">
 					<!-- <view class="btn-copy">复制</view> -->
 				</view>
 			</view>
 			<view class="item">
 				<view class="item-title">订单号：</view>
-				<view class="item-value">21561512545121</view>
+				<view class="item-value">{{order.orderSn}}</view>
 				<view class="item-action">
-					<view class="btn-copy">复制</view>
+					<view class="btn-copy" @tap="toCopy(order.orderSn)">复制</view>
 				</view>
 			</view>
 			<view class="item">
 				<view class="item-title">创建时间：</view>
-				<view class="item-value">2020-12-31 23:23:59</view>
+				<view class="item-value">{{order.createTime}}</view>
 				<view class="item-action">
 					<!-- <view class="btn-copy">复制</view> -->
 				</view>
 			</view>
 			<view class="item">
 				<view class="item-title">付款时间：</view>
-				<view class="item-value">2020-12-31 23:23:59</view>
+				<view class="item-value">{{order.payTime || '未支付'}}</view>
 				<view class="item-action">
 					<!-- <view class="btn-copy">复制</view> -->
 				</view>
 			</view>
 		</view>
-		<view class="btn-confirm">核销</view>
+		<view class="btn-confirm" v-if="from === 'scan' && order.status === 2" @tap="confirmOrder()">核销</view>
 	</view>
 </template>
 
 <script>
+	import {apiOrderViewShopOrder, apiOrderWriteOffOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
-				
+				order: {}
 			}
 		},
 		onLoad(e) {
 			const vm = this;
-			vm.from = e.from;
+			vm.from = e.from || false;
+			vm.orderId = e.orderId;
+			vm.shopId = e.shopId;
+			vm.getOrder();
 		},
 		methods: {
-			
+			//核销
+			confirmOrder() {
+				const vm = this;
+				uni.showModal({
+					content: '确认核销此订单',
+					success(res) {
+						if (res.confirm) {
+							apiOrderWriteOffOrder({orderId: vm.orderId}).then(res => {
+								if (res.data.status === 2000000) {
+									uni.showToast({
+										title: '核销成功'
+									});
+									setTimeout(function() {
+										uni.navigateBack;
+									}, 1000);
+								} else {
+									uni.showModal({
+										title: '订单核销',
+										content: res.data.message,
+									});
+								}
+							});
+						}
+					}
+				})
+			},
+			//复制到剪贴板
+			toCopy(data) {
+				uni.setClipboardData({
+					data: data,
+					success: function () {
+						uni.showToast({
+							title: '复制成功'
+						})
+					}
+				});
+			},
+			//获取订单详情
+			getOrder(orderId, shopId) {
+				const vm = this;
+				apiOrderViewShopOrder().then(res => {
+					if (res.data.status === 2000000) {
+						vm.order = res.data.data;
+					} else {
+						uni.showModal({
+							title: '获取订单详情',
+							content: res.data.message,
+						});
+					}
+				});
+			},
 		}
 	}
 </script>

@@ -16,7 +16,7 @@
 					</view>
 				</view>
 				<view class="item-footer">
-					<view class="action" @tap="toDetail(item.id)">
+					<view class="action" @tap="toDetail(item.id, item.shopId)">
 						查看详情
 					</view>
 				</view>
@@ -26,6 +26,7 @@
 </template>
 
 <script>
+	import {apiOrderFindShopReturnOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -74,50 +75,47 @@
 		},
 		methods: {
 			//跳转售后详情
-			toDetail(orderId) {
+			toDetail(orderId, shopId) {
 				uni.navigateTo({
-					url: '../seller/orderAfterDetail?orderId=' + orderId
+					url: '../seller/orderAfterDetail?orderId=' + orderId + '&shopId=' + shopId
 				});
 			},
 			//获取门店售后订单列表
 			getOrders() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/return_order/findShopReturnOrder';
 				const data = {
 					pageNumber: vm.currentPage,
 					shopId: vm.shopId
 				}
-				uni.request({
-					url: url,
-					method: 'GET',
-					data: data,
-					complete(res) {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const data = res.data.data;
-							if (vm.currentPage === 1) {
-								vm.orders = data;
-							} else {
-								if (data.length) {
-									for (let i = 0; i < data.length; i += 1) {
-										vm.orders.push(data[i]);
-									}
-								} else {
-									uni.showToast({title: '到底了'});
+				apiOrderFindShopReturnOrder(data).then(res => {
+					if (res.data.status === 2000000) {
+						const data = res.data.data;
+						if (vm.currentPage === 1) {
+							vm.orders = data;
+						} else {
+							if (data.length) {
+								for (let i = 0; i < data.length; i += 1) {
+									vm.orders.push(data[i]);
 								}
+							} else {
+								uni.showToast({title: '到底了'});
 							}
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
+						}
+					} else {
+						if (res.data.status === 5000001) {
+							if (vm.currentPage === 1) {
+								vm.orders = [];
+							} else {
+								uni.showToast({title: '到底了'});
+							}
+						} else {
 							uni.showModal({
 								title: '获取门店售后订单',
 								content: res.data.message,
 							});
-						} else {
-							uni.showModal({
-								title: '获取门店售后订单',
-								content: '请求失败',
-							});
 						}
 					}
-				})
+				});
 			},
 		}
 	}

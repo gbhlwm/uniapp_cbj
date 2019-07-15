@@ -33,6 +33,7 @@
 </template>
 
 <script>
+	import {apiGoodReturnServiceClassify, apiGoodFindUserServiceList, apiGoodUplowerService} from '../../api.js'
 	import mSearch from '@/components/mehaotian-search/mehaotian-search.vue';
 	import uniSwipeAction from "@/components/uni-swipe-action/uni-swipe-action.vue"
 	export default {
@@ -73,25 +74,16 @@
 						key: 'userId',
 						complete(res) {
 							vm.userId = res.data;
-							uni.request({
-								url: vm.apiBaseUrl + '/api-good/api/app/shop/returnServiceClassify',
-								method: 'GET',
-								complete(res) {
-									if (res.statusCode === 200 && res.data.status === 2000000) {
-										let arr = [{name: '全部', id: ''}];
-										arr = arr.concat(res.data.data);
-										vm.array = arr;
-									} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-										uni.showModal({
-											title: '获取门店服务类型',
-											content: res.data.message,
-										});
-									} else {
-										uni.showModal({
-											title: '获取门店服务类型',
-											content: '请求失败',
-										});
-									}
+							apiGoodReturnServiceClassify().then(res => {
+								if (res.data.status === 2000000) {
+									let arr = [{name: '全部', id: ''}];
+									arr = arr.concat(res.data.data);
+									vm.array = arr;
+								} else {
+									uni.showModal({
+										title: '获取门店服务类型',
+										content: res.data.message,
+									});
 								}
 							});
 							vm.getServices();
@@ -129,7 +121,6 @@
 			//获取在架服务列表
 			getServices() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/services/findUserServiceList';
 				const data = {
 					pageNumber: vm.currentPage,
 					id: vm.shopId,
@@ -141,37 +132,27 @@
 				if (vm.searchKey) {
 					data.name = vm.searchKey;
 				}
-				uni.request({
-					url: url,
-					method: 'GET',
-					data: data,
-					complete(res) {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const data = res.data.data[1];
-							if (vm.currentPage === 1) {
-								vm.services = data;
-							} else {
-								if (data.length) {
-									for (let i = 0; i < data.length; i += 1) {
-										vm.services.push(data[i]);
-									}
-								} else {
-									uni.showToast({title: '到底了'});
-								}
-							}
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取在架服务',
-								content: res.data.message,
-							});
+				apiGoodFindUserServiceList(data).then(res => {
+					if (res.data.status === 2000000) {
+						const data = res.data.data[1];
+						if (vm.currentPage === 1) {
+							vm.services = data;
 						} else {
-							uni.showModal({
-								title: '获取在架服务',
-								content: '请求失败',
-							});
+							if (data.length) {
+								for (let i = 0; i < data.length; i += 1) {
+									vm.services.push(data[i]);
+								}
+							} else {
+								uni.showToast({title: '到底了'});
+							}
 						}
+					} else {
+						uni.showModal({
+							title: '获取在架服务',
+							content: res.data.message,
+						});
 					}
-				})
+				});
 			},
 			//新增按钮
 			toAdd(serviceId) {
@@ -188,27 +169,18 @@
 				console.log(serviceId);
 				if (e.index === 1) {
 					//点击下架
-					uni.request({
-						url: vm.apiBaseUrl + '/api-good/api/app/services/uplowerService?id=' + serviceId + '&status=2',
-						method: 'PUT',
-						complete(res) {
-							if (res.statusCode === 200 && res.data.status === 2000000) {
-								uni.showToast({title: '下架成功'});
-								vm.currentPage = 1;
-								vm.getServices();
-							} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-								uni.showModal({
-									title: '下架服务',
-									content: res.data.message,
-								});
-							} else {
-								uni.showModal({
-									title: '下架服务',
-									content: '请求失败',
-								});
-							}
+					apiGoodUplowerService({serviceId: serviceId, status: 2}).then(res => {
+						if (res.data.status === 2000000) {
+							uni.showToast({title: '下架成功'});
+							vm.currentPage = 1;
+							vm.getServices();
+						} else {
+							uni.showModal({
+								title: '下架服务',
+								content: res.data.message,
+							});
 						}
-					})
+					});
 				} else {
 					//点解编辑
 					uni.navigateTo({

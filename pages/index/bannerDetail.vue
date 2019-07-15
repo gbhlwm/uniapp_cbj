@@ -9,6 +9,7 @@
 </template>
 
 <script>
+	import {apiOrderViewAdvertisement} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -29,24 +30,14 @@
 			//获取banner详情
 			getBannerDetail(bannerId) {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/advertisement/viewAdvertisement?id=' + bannerId;
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.detail = res.data.data.details;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取banner详情',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取banner详情',
-								content: '请求失败',
-							});
-						}
+				apiOrderViewAdvertisement({id: bannerId}).then(res => {
+					if (res.data.status === 2000000) {
+						vm.detail = res.data.data.details;
+					} else {
+						uni.showModal({
+							title: '获取banner详情',
+							content: res.data.message,
+						});
 					}
 				});
 			}

@@ -66,32 +66,6 @@
 								clearInterval(timer);
 							}
 						}, 1000)
-						// uni.request({
-						// 	url: url,
-						// 	complete(res) {
-						// 		if (res.statusCode === 200 && res.data.status === 2000000) {
-						// 			vm.codeTitle = 60;
-						// 			const timer = setInterval(() => {
-						// 				if (vm.codeTitle > 1) {
-						// 					vm.codeTitle -= 1;
-						// 				} else {
-						// 					vm.codeTitle = '发送验证码';
-						// 					clearInterval(timer);
-						// 				}
-						// 			}, 1000)
-						// 		} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-						// 			uni.showModal({
-						// 				title: '发送验证码',
-						// 				content: res.data.message,
-						// 			});
-						// 		} else {
-						// 			uni.showModal({
-						// 				title: '发送验证码',
-						// 				content: '请求失败',
-						// 			});
-						// 		}
-						// 	}
-						// });
 					}
 				}
 			}

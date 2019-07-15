@@ -30,6 +30,7 @@
 </template>
 
 <script>
+	import {apiOrderFindReturnOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -68,7 +69,6 @@
 			//获取订单列表
 			getOrders() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/return_order/findReturnOrder';
 				const data = {
 					pageNumber: vm.currentPage,
 					userId : vm.userId
@@ -76,45 +76,35 @@
 				if (vm.naviType) {
 					data.status = vm.naviType;
 				}
-				uni.request({
-					url: url,
-					method: 'GET',
-					data: data,
-					complete(res) {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const data = res.data.data;
-							if (vm.currentPage === 1) {
-								vm.orders = data;
-							} else {
-								if (data.length) {
-									for (let i = 0; i < data.length; i += 1) {
-										vm.orders.push(data[i]);
-									}
-								} else {
-									uni.showToast({title: '到底了'});
+				apiOrderFindReturnOrder(data).then(res => {
+					if (res.data.status === 2000000) {
+						const data = res.data.data;
+						if (vm.currentPage === 1) {
+							vm.orders = data;
+						} else {
+							if (data.length) {
+								for (let i = 0; i < data.length; i += 1) {
+									vm.orders.push(data[i]);
 								}
+							} else {
+								uni.showToast({title: '到底了'});
 							}
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							if (res.data.status === 5000001) {
-								if (vm.currentPage === 1) {
-									vm.orders = [];
-								} else {
-									uni.showToast({title: '到底了'});
-								}
+						}
+					} else {
+						if (res.data.status === 5000001) {
+							if (vm.currentPage === 1) {
+								vm.orders = [];
 							} else {
-								uni.showModal({
-									title: '获取服务订单',
-									content: res.data.message,
-								});
+								uni.showToast({title: '到底了'});
 							}
 						} else {
 							uni.showModal({
 								title: '获取服务订单',
-								content: '请求失败',
+								content: res.data.message,
 							});
 						}
 					}
-				})
+				});
 			}
 		}
 	}

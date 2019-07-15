@@ -76,23 +76,39 @@
 				</view>
 			</view>
 		</view>
-		<view class="btn-confirm">核销</view>
 	</view>
 </template>
 
 <script>
+	import {apiOrderViewShopReturnOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
-				
+				order: {},
+				orderId: '',
+				shopId: ''
 			}
 		},
 		onLoad(e) {
 			const vm = this;
-			vm.from = e.from;
+			vm.orderId = e.orderId;
+			vm.shopId = e.shopId;
 		},
 		methods: {
-			
+			// 获取售后订单详情
+			getOrderDetail() {
+				const vm = this;
+				apiOrderViewShopReturnOrder({id: vm.orderId, shopId: vm.shopId}).then(res => {
+					if (res.data.status === 2000000) {
+						vm.order = res.data.data;
+					} else {
+						uni.showModal({
+							title: '获取订单详情',
+							content: res.data.message,
+						});
+					}
+				});
+			}
 		}
 	}
 </script>

@@ -77,6 +77,7 @@
 </template>
 
 <script>
+	import {apiOrderViewReturnOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -86,31 +87,14 @@
 		onLoad(e) {
 			const vm = this;
 			vm.getToken(() => {
-				uni.request({
-					url: vm.apiBaseUrl + '/api-order/api/app/return_order/viewReturnOrder',
-					method: 'GET',
-					data: {
-						id: e.orderId,
-						userId: vm.userId
-					},
-					complete(res) {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.order = res.data.data;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							if (res.data.status === 5000001 && vm.currentPage === 1) {
-								vm.orders = [];
-							} else {
-								uni.showModal({
-									title: '获取售后订单详情',
-									content: res.data.message,
-								});
-							}
-						} else {
-							uni.showModal({
-								title: '获取售后订单详情',
-								content: '请求失败',
-							});
-						}
+				apiOrderViewReturnOrder({id: e.orderId, userId: vm.userId}).then(res => {
+					if (res.data.status === 2000000) {
+						vm.order = res.data.data;
+					} else {
+						uni.showModal({
+							title: '获取售后订单详情',
+							content: res.data.message,
+						});
 					}
 				})
 			})

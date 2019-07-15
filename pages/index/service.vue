@@ -120,6 +120,7 @@
 </template>
 
 <script>
+	import {apiGoodFindServicesById} from '../../api.js'
 	import uniPopup from "@/components/uni-popup/uni-popup.vue"
 	export default {
 		components: {uniPopup},
@@ -233,34 +234,25 @@
 			//获取服务详情
 			getServiceDetail() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/services/findServicesById';
-				uni.request({
-					method: 'GET',
-					url: url,
-					data: {
-						id: vm.serviceId,
-						lat: vm.latitude,
-						lon: vm.longitude
-					},
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const detail = res.data.data;
-							detail.images = detail.image.split(',');
-							vm.serviceDetail = detail;
-							vm.mealList = detail.meals;
-							vm.meal.maxPrice = detail.maxPrice;
-							vm.meal.minPrice = detail.minPrice;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取门店详情',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取门店详情',
-								content: '请求失败',
-							});
-						}
+				const data = {
+					id: vm.serviceId,
+					lat: vm.latitude,
+					lon: vm.longitude
+				};
+				console.log(data);
+				apiGoodFindServicesById(data).then(res => {
+					if (res.data.status === 2000000) {
+						const detail = res.data.data;
+						detail.images = detail.image.split(',');
+						vm.serviceDetail = detail;
+						vm.mealList = detail.meals;
+						vm.meal.maxPrice = detail.maxPrice;
+						vm.meal.minPrice = detail.minPrice;
+					} else {
+						uni.showModal({
+							title: '获取门店详情',
+							content: res.data.message,
+						});
 					}
 				});
 			}

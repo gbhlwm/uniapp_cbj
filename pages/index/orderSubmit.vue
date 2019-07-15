@@ -52,6 +52,7 @@
 </template>
 
 <script>
+	import {apiOrderCountOrder, apiOrderSetOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -71,73 +72,48 @@
 			// 获取订单结算数据
 			getOrderSubmitData() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/order/countOrder';
-				uni.request({
-					method: 'GET',
-					url: url,
-					data: {
-						mealId: vm.mealId,
-						number: vm.number
-					},
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.orderData = res.data.data;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取订单数据',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取订单数据',
-								content: '请求失败',
-							});
-						}
+				const data = {
+					mealId: vm.mealId,
+					number: vm.number
+				};
+				apiOrderCountOrder(data).then(res => {
+					if (res.data.status === 2000000) {
+						vm.orderData = res.data.data;
+					} else {
+						uni.showModal({
+							title: '获取订单数据',
+							content: res.data.message,
+						});
 					}
 				});
 			},
 			//跳转支付页面
 			toPay() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/order/setOrder';
-				vm.getToken(() => {
-					uni.request({
-						method: 'POST',
-						url: url,
-						header: {
-							"Content-Type": "application/x-www-form-urlencoded"
-						},
-						data: {
-							userId: vm.userId,
-							nickName: vm.userNickName,
-							userPhone : vm.account,
-							mealId: vm.mealId,
-							number: vm.number,
-							userRemark: vm.remark
-						},
-						complete: (res) => {
-							if (res.statusCode === 200 && res.data.status === 2000000) {
-								uni.showModal({
-									content: '下单成功',
-									complete() {
-										uni.navigateTo({
-											url: '../index/orderPay?orderId=' + res.data.data.id + '&orderPrice=' + res.data.data.totalFee
-										});
-									}
-								});
-							} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-								uni.showModal({
-									title: '获取订单数据',
-									content: res.data.message,
-								});
-							} else {
-								uni.showModal({
-									title: '获取订单数据',
-									content: '请求失败',
+				const data = {
+					userId: vm.userId,
+					nickName: vm.userNickName,
+					userPhone : vm.account,
+					mealId: vm.mealId,
+					number: vm.number,
+					userRemark: vm.remark
+				};
+				apiOrderSetOrder(data).then(res => {
+					if (res.data.status === 2000000) {
+						uni.showModal({
+							content: '下单成功',
+							complete() {
+								uni.navigateTo({
+									url: '../index/orderPay?orderId=' + res.data.data.id + '&orderPrice=' + res.data.data.totalFee
 								});
 							}
-						}
-					});
+						});
+					} else {
+						uni.showModal({
+							title: '下单',
+							content: res.data.message,
+						});
+					}
 				});
 			}
 		}

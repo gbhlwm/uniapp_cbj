@@ -70,6 +70,7 @@
 </template>
 
 <script>
+	import {apiGoodFindShopDetail} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -133,34 +134,24 @@
 			//获取门店详情
 			getShopDetail() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findShopDetail';
-				uni.request({
-					method: 'GET',
-					url: url,
-					data: {
-						id: vm.shopId,
-						lat: vm.latitude,
-						lon: vm.longitude
-					},
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const detail = res.data.data;
-							detail.images = detail.image.split(',');
-							for (let i = 0; i < detail.serviceList.length; i++) {
-								detail.serviceList[i].images = detail.serviceList[i].image.split(',');
-							}
-							vm.shopDetail = detail;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取门店详情',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取门店详情',
-								content: '请求失败',
-							});
+				const data = {
+					id: vm.shopId,
+					lat: vm.latitude,
+					lon: vm.longitude
+				};
+				apiGoodFindShopDetail(data).then(res => {
+					if (res.data.status === 2000000) {
+						const detail = res.data.data;
+						detail.images = detail.image.split(',');
+						for (let i = 0; i < detail.serviceList.length; i++) {
+							detail.serviceList[i].images = detail.serviceList[i].image.split(',');
 						}
+						vm.shopDetail = detail;
+					} else {
+						uni.showModal({
+							title: '获取门店详情',
+							content: res.data.message,
+						});
 					}
 				});
 			}

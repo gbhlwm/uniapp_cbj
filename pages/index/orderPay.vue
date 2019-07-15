@@ -28,6 +28,7 @@
 </template>
 
 <script>
+	import {apiOrderPayOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -57,34 +58,22 @@
 					
 				} else {
 					vm.getToken(() => {
-						uni.request({
-							url: vm.apiBaseUrl + '/api-order/api/app/order/payOrder.json',
-							method: 'POST',
-							header: {
-								"Content-Type": "application/x-www-form-urlencoded"
-							},
-							data: {
-								token: vm.token,
-								id: vm.orderId,
-								payType: vm.payType
-							},
-							complete(res) {
-								if (res.statusCode === 200 && res.data.status === 2000000) {
-									uni.reLaunch({
-										url: '../index/orderPayResult?result=1'
-									});
-								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-									uni.navigateTo({
-										url: '../index/orderPayResult?result=0'
-									});
-								} else {
-									uni.showModal({
-										title: '发起支付',
-										content: '请求失败',
-									});
-								}
+						const data = {
+							token: vm.token,
+							id: vm.orderId,
+							payType: vm.payType
+						};
+						apiOrderPayOrder(data).then(res => {
+							if (res.data.status === 2000000) {
+								uni.reLaunch({
+									url: '../index/orderPayResult?result=1'
+								});
+							} else {
+								uni.navigateTo({
+									url: '../index/orderPayResult?result=0'
+								});
 							}
-						})
+						});
 					});
 				}
 			}

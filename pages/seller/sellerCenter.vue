@@ -59,6 +59,7 @@
 </template>
 
 <script>
+	import {apiUserMyBusiness} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -73,44 +74,25 @@
 				key: 'shopUserId',
 				complete: (res) => {
 					if (!res.data) {
-						uni.navigateTo({
+						uni.reLaunch({
 							url: '../seller/login'
 						});
 					} else {
 						vm.shopUserId = res.data;
-						uni.request({
-							url: vm.apiBaseUrl + '/api-userapp/api/app/businessUser/MyBusiness?id=' + vm.shopUserId,
-							method: 'GET',
-							complete(res) {
-								if (res.statusCode === 200 && res.data.status === 2000000) {
-									uni.setStorage({
-										key: 'shopId',
-										data: res.data.data[0].id,
-									});
-									vm.shopInfo = res.data.data[0];
-								} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-									uni.showModal({
-										title: '获取门店账号资料',
-										content: res.data.message,
-									});
-								} else {
-									uni.showModal({
-										title: '获取门店账号资料',
-										content: '请求失败',
-									});
-								}
+						apiUserMyBusiness({id: vm.shopUserId}).then(res => {
+							if (res.data.status === 2000000) {
+								uni.setStorage({
+									key: 'shopId',
+									data: res.data.data[0].id,
+								});
+								vm.shopInfo = res.data.data[0];
+							} else {
+								uni.showModal({
+									title: '获取门店账号资料',
+									content: res.data.message,
+								});
 							}
-						})
-					}
-				}
-			});
-		},
-		onShow() {
-			uni.getStorage({
-				key: 'shopUserId',
-				complete: (res) => {
-					if (!res.data) {
-						uni.navigateBack();
+						});
 					}
 				}
 			});
@@ -158,10 +140,15 @@
 					onlyFromCamera: true,
 					scanType: ['qrCode'],
 					success(res) {
-						
+						const result = JSON.parse(res.result);
+						const orderId = result.orderId;
+						const shopId = result.shopId;
+						uni.navigateTo({
+							url: '../seller/orderDetail?orderId=' + orderId + '&shopId=' + shopId + '&from=scan'
+						})
 					},
 					fail(res) {
-						uni.showModal({
+						uni.showToast({
 							content: '识别失败'
 						})
 					}

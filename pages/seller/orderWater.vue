@@ -26,6 +26,7 @@
 </template>
 
 <script>
+	import {apiOrderFindFinance} from '../../api.js'
 	import wPicker from "@/components/w-picker/w-picker.vue";
 	export default {
 		components:{
@@ -115,37 +116,27 @@
 					data.startTime = vm.startTime;
 					data.endTime = vm.endTime;
 				}
-				uni.request({
-					url: url,
-					method: 'GET',
-					data: data,
-					complete(res) {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const data = res.data.data;
-							if (vm.currentPage === 1) {
-								vm.orders = data;
-							} else {
-								if (data.length) {
-									for (let i = 0; i < data.length; i += 1) {
-										vm.orders.push(data[i]);
-									}
-								} else {
-									uni.showToast({title: '到底了'});
-								}
-							}
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取订单流水',
-								content: res.data.message,
-							});
+				apiOrderFindFinance(data).then(res => {
+					if (res.data.status === 2000000) {
+						const data = res.data.data;
+						if (vm.currentPage === 1) {
+							vm.orders = data;
 						} else {
-							uni.showModal({
-								title: '获取订单流水',
-								content: '请求失败',
-							});
+							if (data.length) {
+								for (let i = 0; i < data.length; i += 1) {
+									vm.orders.push(data[i]);
+								}
+							} else {
+								uni.showToast({title: '到底了'});
+							}
 						}
+					} else {
+						uni.showModal({
+							title: '获取订单流水',
+							content: res.data.message,
+						});
 					}
-				})
+				});
 			},
 		}
 	}

@@ -5,10 +5,7 @@
 				<view class="city">{{city}}</view>
 				<image class="city-img" src="../../static/ic_down_s.png"></image>
 			</view>
-			<view class="search" @tap="toSearch()">
-				<image class="search-img" src="../../static/nav_btn_search.png"></image>
-				<view class="search-title">请搜索</view>
-			</view>
+			<mSearch class="search" :mode="1" button="inside" :show="false" @search="toSearch($event)"></mSearch>
 		</view>
 		<view class="swiper">
 			<view class="swiper-box">
@@ -135,10 +132,13 @@
 
 <script>
 	import uniIndexedList from "@/components/uni-indexed-list/uni-indexed-list.vue"
+	import mSearch from '@/components/mehaotian-search/mehaotian-search.vue';
+	import {apiOrderFindAdvertisement, apiGoodFindShopByParam, apiGoodFindAllCityDetail, apiGoodFindCityByName, apiGoodReturnShopClassify, apiGoodFindAllCity, apiGoodReturnServiceClassify} from '../../api.js'
 	export default {
-		components: {uniIndexedList},
+		components: {uniIndexedList, mSearch},
 		data() {
 			return {
+				serviceName: '',
 				title: 'Hello',
 				currentSwiper: 0,
 				cityShow: false,
@@ -237,61 +237,51 @@
 			// 获取所有城市
 			getAllCity() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCity';
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const list = res.data.data;
-							const arr = [
-								{letter: 'A', data: []},
-								{letter: 'B', data: []},
-								{letter: 'C', data: []},
-								{letter: 'D', data: []},
-								{letter: 'E', data: []},
-								{letter: 'F', data: []},
-								{letter: 'G', data: []},
-								{letter: 'H', data: []},
-								{letter: 'I', data: []},
-								{letter: 'J', data: []},
-								{letter: 'K', data: []},
-								{letter: 'L', data: []},
-								{letter: 'M', data: []},
-								{letter: 'N', data: []},
-								{letter: 'O', data: []},
-								{letter: 'P', data: []},
-								{letter: 'Q', data: []},
-								{letter: 'R', data: []},
-								{letter: 'S', data: []},
-								{letter: 'T', data: []},
-								{letter: 'U', data: []},
-								{letter: 'V', data: []},
-								{letter: 'W', data: []},
-								{letter: 'X', data: []},
-								{letter: 'Y', data: []},
-								{letter: 'Z', data: []}
-							];
-							for (let i = 0; i < list.length; i++) {
-								for (let j = 0; j < arr.length; j++) {
-									if (list[i].initials === arr[j].letter) {
-										arr[j].data.push(list[i].name);
-									}
+				apiGoodFindAllCity().then(res => {
+					if (res.data.status === 2000000) {
+						const list = res.data.data;
+						const arr = [
+							{letter: 'A', data: []},
+							{letter: 'B', data: []},
+							{letter: 'C', data: []},
+							{letter: 'D', data: []},
+							{letter: 'E', data: []},
+							{letter: 'F', data: []},
+							{letter: 'G', data: []},
+							{letter: 'H', data: []},
+							{letter: 'I', data: []},
+							{letter: 'J', data: []},
+							{letter: 'K', data: []},
+							{letter: 'L', data: []},
+							{letter: 'M', data: []},
+							{letter: 'N', data: []},
+							{letter: 'O', data: []},
+							{letter: 'P', data: []},
+							{letter: 'Q', data: []},
+							{letter: 'R', data: []},
+							{letter: 'S', data: []},
+							{letter: 'T', data: []},
+							{letter: 'U', data: []},
+							{letter: 'V', data: []},
+							{letter: 'W', data: []},
+							{letter: 'X', data: []},
+							{letter: 'Y', data: []},
+							{letter: 'Z', data: []}
+						];
+						for (let i = 0; i < list.length; i++) {
+							for (let j = 0; j < arr.length; j++) {
+								if (list[i].initials === arr[j].letter) {
+									arr[j].data.push(list[i].name);
 								}
 							}
-							vm.cityList = arr;
-							vm.citys = list;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取城市列表',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取城市列表',
-								content: '请求失败',
-							});
 						}
+						vm.cityList = arr;
+						vm.citys = list;
+					} else {
+						uni.showModal({
+							title: '获取城市列表',
+							content: res.data.message,
+						});
 					}
 				});
 			},
@@ -312,7 +302,7 @@
 								vm.getCityId(vm.city, (res) => {
 									if (res.statusCode === 200 && res.data.status === 2000000) {
 										vm.cityId = res.data.data.id;
-										vm.getAreas(vm.getShops());
+										vm.getAreas(vm.getShops);
 									} else if (res.statusCode === 200 && res.data.status !== 2000000) {
 										uni.showModal({
 											title: '获取城市',
@@ -331,10 +321,6 @@
 								vm.getShops();
 							}
 						} else {
-							// uni.showModal({
-							// 	title: '获取定位',
-							// 	content: '失败',
-							// });
 							vm.getShops();
 						}
 					}
@@ -408,113 +394,75 @@
 			//获取服务分类列表
 			getServiceList() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/returnServiceClassify';
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							res.data.data.push({
-								id: '',
-								name: '全部'
-							});
-							vm.serviceList = res.data.data;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取服务分类',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取服务分类',
-								content: '请求失败',
-							});
-						}
+				apiGoodReturnServiceClassify().then(res => {
+					if (res.data.status === 2000000) {
+						res.data.data.push({
+							id: '',
+							name: '全部'
+						});
+						vm.serviceList = res.data.data;
+					} else {
+						uni.showModal({
+							title: '获取服务分类',
+							content: res.data.message,
+						});
 					}
 				});
 			},
 			//获取服务认证列表
 			getClassList() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/returnShopClassify';
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.classList = res.data.data;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取服务认证',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取服务认证',
-								content: '请求失败',
-							});
-						}
+				apiGoodReturnShopClassify().then(res => {
+					if (res.data.status === 2000000) {
+						vm.classList = res.data.data;
+					} else {
+						uni.showModal({
+							title: '获取服务认证',
+							content: res.data.message,
+						});
 					}
-				});
+				})
 			},
 			//获取banners
 			getBanners() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/advertisement/findAdvertisement?pageNumber=1&pageSize=999';
-				uni.request({
-					method: 'GET',
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.banners = res.data.data;
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取广告',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取广告',
-								content: '请求失败',
-							});
-						}
+				apiOrderFindAdvertisement().then(res => {
+					if (res.data.status === 2000000) {
+						vm.banners = res.data.data;
+					} else {
+						uni.showModal({
+							title: '获取广告',
+							content: res.data.message,
+						});
 					}
 				});
 			},
 			//根据城市名获取城市id
 			getCityId(cityName, callback = () => {}) {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findCityByName?name=' + encodeURIComponent(cityName);
-				uni.request({
-					url: url,
-					complete: (res) => {
-						callback(res);
-					}
+				apiGoodFindCityByName({
+					name: encodeURIComponent(cityName)
+				}).then(res => {
+					callback(res);
 				})
 			},
 			//获取城市下城区列表
 			getAreas(callBack = () => {}) {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-good/api/app/shop/findAllCityDetail?parentId=' + vm.cityId;
-				uni.request({
-					url: url,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							vm.areas = res.data.data;
-							vm.area = vm.areas[0].name
-							vm.areaId = vm.areas[0].id
-							callBack();
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取城区',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取城区',
-								content: '请求失败',
-							});
-						}
+				const data = {
+					parentId: vm.cityId
+				}
+				apiGoodFindAllCityDetail(data).then(res => {
+					if (res.statusCode === 200 && res.data.status === 2000000) {
+						vm.areas = res.data.data;
+						vm.area = vm.areas[0].name
+						vm.areaId = vm.areas[0].id
+						callBack();
+					} else {
+						uni.showModal({
+							title: '获取城区',
+							content: res.data.message,
+						});
 					}
 				})
 			},
@@ -543,58 +491,49 @@
 				if (vm.attribute) {
 					data.attribute = vm.attribute;
 				}
+				if (vm.serviceName) {
+					data.serviceName = vm.serviceName;
+				}
 				if (vm.queryListShow) {
 					vm.queryListShow = false;
 				}
-				uni.request({
-					method: 'GET',
-					url: url,
-					data: data,
-					complete: (res) => {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const list = res.data.data;
-							for (let i = 0; i < list.length; i += 1) {
-								const imgs = list[i].shopImage ? list[i].shopImage.split(',') : [''];
-								list[i].cover = imgs[0];
-							}
-							if (vm.currentPage === 1) {
-								vm.shops = list;
-							} else {
-								if (list.length) {
-									// const oldList = JSON.parse(JSON.stringify(vm.shops));
-									// const newList = oldList.concat(list);
-									// vm.shops = newList;
-									for (let i = 0; i < list.length; i += 1) {
-										vm.shops.push(list[i]);
-									}
-									// vm.shops = vm.shops.contact(list);
-								} else {
-									uni.showToast({title: '到底了'});
-								}
-							}
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取门店',
-								content: res.data.message,
-							});
-						} else {
-							uni.showModal({
-								title: '获取门店',
-								content: '请求失败',
-							});
+				apiGoodFindShopByParam(data).then(res => {
+					if (res.data.status === 2000000) {
+						const list = res.data.data;
+						for (let i = 0; i < list.length; i += 1) {
+							const imgs = list[i].shopImage ? list[i].shopImage.split(',') : [''];
+							list[i].cover = imgs[0];
 						}
+						if (vm.currentPage === 1) {
+							vm.shops = list;
+						} else {
+							if (list.length) {
+								for (let i = 0; i < list.length; i += 1) {
+									vm.shops.push(list[i]);
+								}
+							} else {
+								uni.showToast({title: '到底了'});
+							}
+						}
+					} else {
+						uni.showModal({
+							title: '获取门店',
+							content: res.data.message,
+						});
 					}
-				})
+				});
 			},
 			//轮播图指示器
 			swiperChange(event) {
 				this.currentSwiper = event.detail.current;
 			},
 			//跳转搜索页面
+			//点击搜索
 			toSearch(e) {
-				uni.navigateTo({
-					url: '../index/search'
-				});
+				const vm = this;
+				vm.serviceName = e;
+				vm.currentPage = 1;
+				vm.getPosition();
 			},
 			//跳转到门店详情
 			toShop(shopId) {

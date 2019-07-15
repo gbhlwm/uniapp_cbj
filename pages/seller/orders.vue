@@ -9,8 +9,11 @@
 			<view class="item" v-for="item in orders" :key="item.id">
 				<view class="item-head">
 					<view>订单编号：{{item.orderSn}}</view>
+					<view class="status" v-if="item.status === 1">待付款</view>
 					<view class="status" v-if="item.status === 2">待核销</view>
 					<view class="status" v-if="item.status === 3">已核销</view>
+					<view class="status" v-if="item.status === 4">已完成</view>
+					<view class="status" v-if="item.status === 5">已取消</view>
 				</view>
 				<view class="item-body">
 					<view class="cover" :style="{'background-image': 'url(' + item.image + ')'}"></view>
@@ -26,10 +29,10 @@
 						<view class="title">共{{item.number}}件商品  总计：</view>
 						<view class="value">${{item.total}}</view>
 					</view>
-					<view class="action" v-if="item.status === 2">
+					<!-- <view class="action" v-if="item.status === 2">
 						核销
-					</view>
-					<view class="action" v-if="item.status === 3" @tap="toDetail(item.id)">
+					</view> -->
+					<view class="action" @tap="toDetail(item.id, item.shopId)">
 						查看详情
 					</view>
 				</view>
@@ -39,6 +42,7 @@
 </template>
 
 <script>
+	import {apiOrderFindShopOrder} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -87,9 +91,9 @@
 		},
 		methods: {
 			//跳转订单详情
-			toDetail(orderId) {
+			toDetail(orderId, shopId) {
 				uni.navigateTo({
-					url: '../seller/orderDetail?orderId=' + orderId
+					url: '../seller/orderDetail?orderId=' + orderId + '&shopId=' + shopId
 				});
 			},
 			//选择订单类型
@@ -102,7 +106,6 @@
 			//获取订单列表
 			getOrders() {
 				const vm = this;
-				const url = vm.apiBaseUrl + '/api-order/api/app/order/findShopOrder';
 				const data = {
 					pageNumber: vm.currentPage,
 					shopId: vm.shopId
@@ -110,37 +113,35 @@
 				if (vm.naviType) {
 					data.status = vm.naviType;
 				}
-				uni.request({
-					url: url,
-					method: 'GET',
-					data: data,
-					complete(res) {
-						if (res.statusCode === 200 && res.data.status === 2000000) {
-							const data = res.data.data;
-							if (vm.currentPage === 1) {
-								vm.orders = data;
-							} else {
-								if (data.length) {
-									for (let i = 0; i < data.length; i += 1) {
-										vm.orders.push(data[i]);
-									}
-								} else {
-									uni.showToast({title: '到底了'});
+				apiOrderFindShopOrder(data).then(res => {
+					if (res.data.status === 2000000) {
+						const data = res.data.data;
+						if (vm.currentPage === 1) {
+							vm.orders = data;
+						} else {
+							if (data.length) {
+								for (let i = 0; i < data.length; i += 1) {
+									vm.orders.push(data[i]);
 								}
+							} else {
+								uni.showToast({title: '到底了'});
 							}
-						} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-							uni.showModal({
-								title: '获取门店订单',
-								content: res.data.message,
-							});
+						}
+					} else {
+						if (res.data.status === 5000001) {
+							if (vm.currentPage === 1) {
+								vm.orders = [];
+							} else {
+								uni.showToast({title: '到底了'});
+							}
 						} else {
 							uni.showModal({
-								title: '获取门店订单',
-								content: '请求失败',
+								title: '获取服务订单',
+								content: res.data.message,
 							});
 						}
 					}
-				})
+				});
 			},
 		}
 	}

@@ -25,6 +25,7 @@
 </template>
 
 <script>
+	import {apiUserFindAccount} from '../../api.js'
 	export default {
 		data() {
 			return {
@@ -50,25 +51,16 @@
 							key: 'shopUserId',
 							complete(res) {
 								vm.shopUserId = res.data;
-								uni.request({
-									url: vm.apiBaseUrl + '/api-userapp/api/app/businessUser/findAccount?id=' + vm.shopUserId,
-									method: 'GET',
-									complete(res) {
-										if (res.statusCode === 200 && res.data.status === 2000000) {
-											vm.shopInfo = res.data.data;
-										} else if (res.statusCode === 200 && res.data.status !== 2000000) {
-											uni.showModal({
-												title: '获取账号资料',
-												content: res.data.msg,
-											});
-										} else {
-											uni.showModal({
-												title: '获取账号资料',
-												content: '请求失败',
-											});
-										}
+								apiUserFindAccount({id: vm.shopUserId}).then(res => {
+									if (res.data.status === 2000000) {
+										vm.shopInfo = res.data.data;
+									} else {
+										uni.showModal({
+											title: '获取账号资料',
+											content: res.data.msg,
+										});
 									}
-								})
+								});
 							}
 						});
 					}
