@@ -87,6 +87,9 @@ export default {
 				this.searchName = '取消';
 				this.isDelShow = false;
 			}
+			if (newVal === '') {
+				this.$emit('search', '');
+			}
 		}
 	}
 };

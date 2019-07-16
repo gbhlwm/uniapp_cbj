@@ -105,8 +105,18 @@
             "path" : "pages/index/commandAdd",//客户端我的门店评价添加页 对应原型模块A2-8-1
             "style": {
             	"app-plus": {
-            		"titleNView": false ,//禁用原生导航栏
-            		"softinputNavBar":"none"
+            		"titleNView": {
+            			"backgroundColor": "#ffffff",
+            			"titleText": "添加评价",
+            			"buttons": [
+            				{
+            					"text": "发布",
+            					"float": "right",
+            					"fontSize": "10",
+            					"color": "#333333"
+            				}
+            			]
+            		}
             	}
             }
         }, {

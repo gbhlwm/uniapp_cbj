@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import App from './App'
 import $api from './api.js'
-console.log($api);
 
 Vue.config.productionTip = false
 

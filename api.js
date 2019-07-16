@@ -42,7 +42,7 @@ export const apiGoodFindCityByName = data => {
  * 获取服务分类列表
  */
 export const apiGoodReturnServiceClassify = () => {
-  return $http.get(`/api/app/shop/returnServiceClassify`, {}, shopRequestOption).then(res => res).catch(error => error);
+  return $http.get(`/api-good/api/app/shop/returnServiceClassify`, {}, shopRequestOption).then(res => res).catch(error => error);
 };
 
 /**
@@ -160,6 +160,16 @@ export const apiOrderPayOrder = data => {
 	  'content-type': 'application/x-www-form-urlencoded'
   }
   return $http.post(`/api-order/api/app/order/payOrder.json`, data, shopRequestOption).then(res => res).catch(error => error);
+};
+
+/**
+ * 提交评价
+ */
+export const apiOrderCommentOrder = data => {
+  shopRequestOption.headers = {
+	  'content-type': 'application/x-www-form-urlencoded'
+  }
+  return $http.post(`/api-order/api/app/order/commentOrder`, data, shopRequestOption).then(res => res).catch(error => error);
 };
 
 /**
